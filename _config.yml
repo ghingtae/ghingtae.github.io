@@ -124,7 +124,7 @@ footer:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/ghingtae"
     - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
+      icon: "fab fa fa-instagram"
       url: "https://instagram.com/ghing_tae"
 
 
