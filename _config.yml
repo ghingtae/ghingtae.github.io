@@ -16,15 +16,15 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Site Title"
+title                    : "M3 Macbook pro"
 title_separator          : "-"
-subtitle                 : # site tagline that appears below site title in masthead
+subtitle                 : "M3 Macbook pro와 함께 하는 기술 블로그."
 name                     : "김경태"
 description              : "ghingtae is awesome."
 url                      : "https://ghingtae.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
-teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+teaser                   : "/assets/images/black_winter.JPG"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 # breadcrumbs            : false # true, false (default)
@@ -105,7 +105,7 @@ analytics:
 # Site Author
 author:
   name             : "김경태"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "/assets/images/profile_avatar.jpg"
   bio              : "ghingtae is **awesome**."
   location         : "Republic of Korea"
   email            : "kkt3867@naver.com"
