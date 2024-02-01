@@ -114,7 +114,7 @@ author:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/ghingtae"
     - label: "Instagram"
-      icon: "fab fa-instagram"
+      icon: "fab fa-fw fa-instagram"
       url: "https://instagram.com/ghing_tae"
 
 # Site Footer
@@ -124,7 +124,7 @@ footer:
       icon: "fab fa-fw fa-github"
       url: "https://github.com/ghingtae"
     - label: "Instagram"
-      icon: "fab fa-instagram"
+      icon: "fab fa-fw fa-instagram"
       url: "https://instagram.com/ghing_tae"
 
 
