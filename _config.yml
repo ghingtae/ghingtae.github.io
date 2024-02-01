@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "M3 Macbook pro"
+title                    : "💻 M3 Macbook pro"
 title_separator          : "-"
 subtitle                 : "M3 Macbook pro와 함께 하는 기술 블로그."
 name                     : "김경태"
