@@ -83,9 +83,9 @@ author_profile: true
 ## MLX란?
    
 
-MLX 는 Apple silicon 에서 머신러닝을 수행하기 위해 만들어진 array framework 입니다.   
+MLX는 Apple silicon에서 머신러닝을 수행하기 위해 만들어진 array framework입니다.   
 
-Apple silicon 만의 CPU와 GPU를 사용하여 벡터와 그래프 연산 속도를 크게 높일 수 있습니다.   
+Apple silicon만의 CPU와 GPU를 사용하여 벡터와 그래프 연산 속도를 크게 높일 수 있습니다.   
 
 
 ## 설치 요구 사항
