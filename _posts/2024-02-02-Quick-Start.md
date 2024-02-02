@@ -80,9 +80,7 @@ author_profile: true
 </head>
 
 
-# MLX
-
-
+## MLX란?
    
 
 MLX 는 Apple silicon 에서 머신러닝을 수행하기 위해 만들어진 array framework 입니다.   
