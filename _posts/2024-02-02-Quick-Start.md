@@ -157,7 +157,6 @@ d dtype: mlx.core.float32
 MLX는 lazy evaluation을 사용합니다.
 
 > **lazy evaluation이란?**   
-
 > : 실제로 연산 결과가 어딘가에 사용되기 전까지 연산을 미루는 프로그래밍 방법론입니다.
 
    
