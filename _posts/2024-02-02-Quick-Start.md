@@ -117,7 +117,6 @@ Successfully installed mlx-0.0.11
 </pre>
 ## Basic Quick Start
 
----
 
    
 
@@ -159,7 +158,7 @@ MLX는 lazy evaluation을 사용합니다.
 
 > **lazy evaluation이란?**   
 
-: 실제로 연산 결과가 어딘가에 사용되기 전까지 연산을 미루는 프로그래밍 방법론입니다.
+> : 실제로 연산 결과가 어딘가에 사용되기 전까지 연산을 미루는 프로그래밍 방법론입니다.
 
    
 
@@ -192,7 +191,6 @@ forced evaluation time: 0.02145099639892578
 </pre>
 ## Unified Memory
 
----
 
    
 
@@ -242,7 +240,7 @@ dependency가 존재하지 않을 경우 병렬적으로 각각 연산이 됩니
 
 
 
-연산의 종류에 따라서 CPU가 유리할 수도 있고 GPU가 유리할 수도 있습니다.   
+**연산의 종류에 따라서 CPU가 유리할 수도 있고 GPU가 유리할 수도 있습니다.**   
 
 matmul 연산은 GPU에세 유리한 연산입니다. 하지만 for loop로 이루어진 연산은 CPU에 유리한 연산입니다.   
 
@@ -304,7 +302,6 @@ Stream(Device(gpu, 0), 0)
 </pre>
 ## References
 
----
 
 * [MLX](https://ml-explore.github.io/mlx/build/html/index.html)(MLX 홈페이지)   
 
