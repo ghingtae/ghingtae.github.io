@@ -4,7 +4,8 @@ title:  "MLX: Apple silicon Machine Learning - 01.Quick Start Guide"
 categories: MLX
 tag: [IOS, MLX, coding]
 toc: true
-author_profile: false
+toc_sticky: true
+author_profile: true
 ---
 
 <head>
