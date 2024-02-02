@@ -306,9 +306,9 @@ Stream(Device(gpu, 0), 0)
 
 ---
 
-* [MLX]('https://ml-explore.github.io/mlx/build/html/index.html')(MLX 홈페이지)   
+* [MLX](https://ml-explore.github.io/mlx/build/html/index.html)(MLX 홈페이지)   
 
-* [SKT Enterprise]('https://www.sktenterprise.com/bizInsight/blogDetail/dev/8107')(MLX 설명)   
+* [SKT Enterprise](https://www.sktenterprise.com/bizInsight/blogDetail/dev/8107)(MLX 설명)   
 
 * [Medium]('https://medium.com/sjk5766/lazy-evaluation%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90-411651d5227b')(Lazy computation 설명)
 
