@@ -108,11 +108,8 @@ lr = 0.01 # learning rate for SGD
 > **머신러닝에서 말하는 Batch의 정의**   
 
 >   > * 모델을 학습할 때 한 iteration당(반복 1회당) 사용되는 example의 set모임입니다.   
-
 >   > * 여기서 iteration은 정해진 batch size를 이용하여 학습(forward - backward)를 반복하는 횟수를 말합니다다.   
-
 >   > * 한 번의 epoch를 위해 여러번의 iteration이 필요합니다.   
-
 >   > * training error와 validation error가 동일하게 감소하다가 validation error가 증가하기 시작하는 직전 점의 epoch를 선택해야 합니다. (overfitting 방지)   
 
    
@@ -120,11 +117,8 @@ lr = 0.01 # learning rate for SGD
 > **Batch Size의 정의 및 Batch Size**   
 
 >   > * Batch 하나에 포함되는 example set의 갯수   
-
 >   > * Batch / Mini-Batch/ Stochastic 세 가지로 나눌 수 있습니다. (아래 그림 참고)   
-
->   >   > [batch](../assets/images/batch.png)   
-
+>   >   > ![batch](../assets/images/batch.png)   
 >   > * SGD(Stochastic Gradient Descent)는 배치 크기가 1, Mini-Batch는 10 ~ 1,00 사이지만 보통 2의 지수승(32, 64, 128...)으로 구성됩니다.   
 
    
@@ -134,9 +128,7 @@ lr = 0.01 # learning rate for SGD
 >   > **Batch**
 
 >   >   > * 여러개의 샘플들이 한번에 영향을 주어 합의된 방향으로 smooth하게 수렴됩니다.   
-
 >   >   > * 샘플 갯수를 전부 계산해야 함으로 시간이 많이 소요됩니다.   
-
 >   >   > * 모든 Training data set을 사용합니다.  
 
      
@@ -144,9 +136,7 @@ lr = 0.01 # learning rate for SGD
 >   > **(SGD)Stochastic Gradient Descent**
 
 >   >   > * 데이터를 한 개씩 추출해서 처리하고 이를 모든 데이터에 반복하는 것입니다.   
-
 >   >   > * 수렴 속도는 빠르지만 오차율이 큽니다. (global minimum을 찾지 못할 수 있음)   
-
 >   >   > * GPU 성능을 제대로 활용하지 못하기 때문에 비효율적입니다. (하나씩 처리하기 때문)   
 
 
@@ -154,7 +144,6 @@ lr = 0.01 # learning rate for SGD
 >   > **Mini-Batch**
 
 >   >   > * 전체 학습 데이터를 배치 사이즈로 등분하여 각 배치 셋을 순차적으로 수행합니다.
-
 >   >   > * 배치보다 빠르고 SGD보다 낮은 오차율을 가지고 있습니다.
 
 
@@ -180,7 +169,6 @@ y = X @ w_start + eps
 ```
 
 > * '@'는 Numpy나 MXNet과 같은 배열 계산 라이브러리에서 행렬 곱셈(또는 행렬-벡터 곱셈)을 나타내는 연산자입니다.   
-
 > * 'X @ w_start'는 행렬 'X'와 벡터 'w_start'사이의 행렬 곱셉을 의미합니다.
 
 
