@@ -90,7 +90,7 @@ MLX를 사용하여 간단한 Linear Regression 예제를 돌려보도록 하겠
 
    
 
-우선 관련 모듈을 import 하고 hyperparam을 세팅해줍니다.
+우선 관련 모듈을 import 하고 hyperparam을 세팅합니다.
 
 
 
@@ -108,7 +108,7 @@ lr = 0.01 # learning rate for SGD
 > **머신러닝에서 말하는 Batch의 정의**   
 
 >   > * 모델을 학습할 때 한 iteration당(반복 1회당) 사용되는 example의 set모임입니다.   
->   > * 여기서 iteration은 정해진 batch size를 이용하여 학습(forward - backward)를 반복하는 횟수를 말합니다다.   
+>   > * 여기서 iteration은 정해진 batch size를 이용하여 학습(forward - backward)를 반복하는 횟수를 말합니다.   
 >   > * 한 번의 epoch를 위해 여러번의 iteration이 필요합니다.   
 >   > * training error와 validation error가 동일하게 감소하다가 validation error가 증가하기 시작하는 직전 점의 epoch를 선택해야 합니다. (overfitting 방지)   
 
@@ -117,7 +117,7 @@ lr = 0.01 # learning rate for SGD
 > **Batch Size의 정의**   
 
 >   > * Batch 하나에 포함되는 example set의 갯수입니다.   
->   > * Batch / Mini-Batch/ Stochastic 세 가지로 나눌 수 있습니다. (아래 그림 참고)   
+>   > * Batch / Mini-Batch/ Stochastic 세 가지로 나눌 수 있습니다.(아래 그림 참고)   
 >   >   > ![batch](/assets/images/batch.png)   
 >   > * SGD(Stochastic Gradient Descent)는 배치 크기가 1, Mini-Batch는 10 ~ 1,00 사이지만 보통 2의 지수승(32, 64, 128...)으로 구성됩니다.   
 
