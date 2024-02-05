@@ -118,7 +118,7 @@ lr = 0.01 # learning rate for SGD
 
 >   > * Batch 하나에 포함되는 example set의 갯수   
 >   > * Batch / Mini-Batch/ Stochastic 세 가지로 나눌 수 있습니다. (아래 그림 참고)   
->   >   > ![batch](../assets/images/batch.png)   
+>   >   > ![batch](/assets/images/batch.png)   
 >   > * SGD(Stochastic Gradient Descent)는 배치 크기가 1, Mini-Batch는 10 ~ 1,00 사이지만 보통 2의 지수승(32, 64, 128...)으로 구성됩니다.   
 
    
