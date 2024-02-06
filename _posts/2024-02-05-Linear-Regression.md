@@ -168,7 +168,7 @@ mx.random.normal((num_examples,))
 y = X @ w_start + eps
 ```
 
-> * '@'는 Numpy나 MXNet과 같은 배열 계산 라이브러리에서 행렬 곱셈(또는 행렬-벡터 곱셈)을 나타내는 연산자입니다.   
+> * '@'는 NumPy나 MXNet과 같은 배열 계산 라이브러리에서 행렬 곱셈(또는 행렬-벡터 곱셈)을 나타내는 연산자입니다.   
 > * 'X @ w_start'는 행렬 'X'와 벡터 'w_start'사이의 행렬 곱셉을 의미합니다.
 
 
