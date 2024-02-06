@@ -80,7 +80,7 @@ author_profile: true
 </head>
 
 
-## MLX를 이용한 Multi-Layer Perceptron(MLP) 구현
+# MLX를 이용한 Multi-Layer Perceptron(MLP) 구현
 
 
 
@@ -531,7 +531,7 @@ CPU를 사용해서 학습하였을 때는 GPU(MPS)를 사용했을 때 보다 *
 MLX를 사용하였을 때 간단한 linear regression에서는 큰 차이가 없었지만, multi-layer perceptron처럼 행렬 연산이 무거워지는 경우 차이가 발생하는 것을 확인할 수 있었습니다.
 
 
-## References
+# References
 
 
 * [MLX 홈페이지](https://ml-explore.github.io/mlx/build/html/examples/mlp.html)(Multi-Layer Perceptron 설명)
