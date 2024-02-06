@@ -331,7 +331,7 @@ multi-layer perceptron처럼 행렬 연산이 무거워지는 경우 차이가 �
 
 ## References
 
-
+* [MLX 홈페이지](https://ml-explore.github.io/mlx/build/html/examples/linear_regression.html)(MLX Linear Regression 설명)
 
 * [Tstory](https://nonmeyet.tistory.com/entry/Batch-MiniBatch-Stochastic-%EC%A0%95%EC%9D%98%EC%99%80-%EC%84%A4%EB%AA%85-%EB%B0%8F-%EC%98%88%EC%8B%9C)(Batch 설명)
 
