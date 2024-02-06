@@ -316,7 +316,7 @@ MLX은 Unified Memory(메모리 공유)를 통해 GPU로 메모리를 이동시�
 그렇다면 GPU만 사용했을 때 어떻게 되는지 살펴보겠습니다.
 
 
-## PyTorch + GPU(MPS) 학습
+### PyTorch + GPU(MPS) 학습
 
 
 
@@ -424,7 +424,7 @@ Training time: 0.48 sec/epoch
 그렇다면 CPU로만 학습했을 때는 어떤지 살펴보겠습니다.
 
 
-## PyTorch + CPU 학습
+### PyTorch + CPU 학습
 
 
 
