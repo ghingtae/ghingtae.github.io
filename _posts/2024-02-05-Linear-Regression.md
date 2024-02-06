@@ -149,7 +149,7 @@ lr = 0.01 # learning rate for SGD
 
 임의의 선형 함수를 만들고, 임의의 input 데이터를 만들어줍니다.   
 
-mx.random.normal을 이용하여 랜덤하게 만들어줍니다.   
+`mx.random.normal`을 이용하여 랜덤하게 만들어줍니다.   
 
 label 값의 경우 만들어진 input데이터를 함수에 통과시키고, 작은 noise를 부여하여 만들어줍니다.
 
@@ -168,8 +168,8 @@ mx.random.normal((num_examples,))
 y = X @ w_start + eps
 ```
 
-> * '@'는 NumPy나 MXNet과 같은 배열 계산 라이브러리에서 행렬 곱셈(또는 행렬-벡터 곱셈)을 나타내는 연산자입니다.   
-> * 'X @ w_start'는 행렬 'X'와 벡터 'w_start'사이의 행렬 곱셉을 의미합니다.
+> * `@`는 NumPy나 MXNet과 같은 배열 계산 라이브러리에서 행렬 곱셈(또는 행렬-벡터 곱셈)을 나타내는 연산자입니다.   
+> * `X @ w_start`는 행렬 `X`와 벡터 `w_start`사이의 행렬 곱셉을 의미합니다.
 
 
 별도의 테스트 셋도 만들어줍니다.
