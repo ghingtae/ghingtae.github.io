@@ -80,11 +80,11 @@ author_profile: true
 </head>
 
 
-# MLX를 이용한 Multi-Layer Perceptron(MLP) 구현
+## Multi-Layer Perceptron(MLP) 구현
 
 
 
-MNIST 데이터셋을 이용하여 Multi-Layer Perceptron(MLP) 예제를 MLX와 CPU, GPU(MPS)를 이용해 구현하고 비교해보도록 하겠습니다.   
+MNIST 데이터셋을 이용하여 Multi-Layer Perceptron(MLP)을 MLX와 CPU, GPU(MPS)를 이용해 구현하고 비교해보도록 하겠습니다.   
 
 (CPU와 MPS는 Torch 사용)
 
@@ -320,6 +320,7 @@ MLX은 Unified Memory(메모리 공유)를 통해 GPU로 메모리를 이동시�
 
 
 
+
 ```python
 import torch
 import mnist
@@ -428,6 +429,7 @@ Training time: 0.48 sec/epoch
 
 
 
+
 ```python
 import torch
 import mnist
@@ -525,13 +527,13 @@ CPU를 사용해서 학습하였을 때는 GPU(MPS)를 사용했을 때 보다 *
 
 이것을 통해 MLP의 경우 GPU(MPS) 활용도가 떨어진다는 것을 볼 수 있습니다.   
 
-> GPU(MPS)활용도가 떨어지는 것은 Unified Memory가 아니기 때문에 메모리를 device로 옮기는 것에서 시간 손해가 일어났을 수도 있고, 아직 최적화가 덜 되었기 때문에 발생되는 문제로 보여집니다.
+> GPU(MPS)활용도가 떨어지는 것은 Unified Memory가 아니기 때문에 메모리를 device로 옮기는 과정에서 시간 손해가 일어났거나, 최적화 문제 때문에 발생되는 것으로 보여집니다.
 
 
 MLX를 사용하였을 때 간단한 linear regression에서는 큰 차이가 없었지만, multi-layer perceptron처럼 행렬 연산이 무거워지는 경우 차이가 발생하는 것을 확인할 수 있었습니다.
 
 
-# References
+## References
 
 
 * [MLX 홈페이지](https://ml-explore.github.io/mlx/build/html/examples/mlp.html)(Multi-Layer Perceptron 설명)
