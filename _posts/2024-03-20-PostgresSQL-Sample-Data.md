@@ -94,7 +94,6 @@ PostgreSQL에 샘플 데이터베이스를 로드하는 방법에 대해서 알�
 
 5. [샘플 데이터베이스를 다운로드](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) 하고 압축을 풉니다. 많은 파일이 포함된 디렉토리를 얻게 됩니다.
 ![DVD-Rental](/assets/images/DVD%20Rental.png)
-
 다이어그램에서 필드 앞에 나타나는 별표(*)는 기본 키를 나타냅니다.
 
 7. **dvdrental** 데이터베이스를 마우스 오른쪽 버튼으로 클릭하고 **Restore** 메뉴 항목을 선택합니다.
@@ -105,7 +104,6 @@ PostgreSQL에 샘플 데이터베이스를 로드하는 방법에 대해서 알�
 
 9. 샘플 데이터베이스를 복원하는데 몇 초 정도 걸리며, 복원이 완료되면 다음과 같은 알람이 표시됩니다.
 ![Sample-Database-Step(2)](/assets/images/Sample%20Database%20Step%20(1).png)
-
 이것은 샘플 데이터베이스를 성공적으로 생성하고 다운로드한 파일에서 복원 했음을 의미합니다.
 
 ---
