@@ -86,24 +86,24 @@ PostgreSQL에 샘플 데이터베이스를 로드하는 방법에 대해서 알�
 
 2. postgres 사용자의 비밀번호를 입력합니다.
 
-3. PostgreSQL 12 마우스 오른쪽 버튼으로 클릭하고 **Create > Database**를 선택하여 새 데이터베이스를 생성하기 위한 대화 상자를 엽니다.
+3. PostgreSQL 12 마우스 오른쪽 버튼으로 클릭하고 **Create > Database**를 선택하여 새 데이터베이스를 생성하기 위한 대화 상자를 엽니다.   
 ![Restore-Sample-Database-Step-1](/assets/images/Restore-Sample-Database-Step-1.png)
 
-4. **Database**에 dvdrental, **Owner**에 postgres를 입력하고 **Save** 버튼을 클릭하여 dvdrental 데이터베이스를 생성합니다.
+4. **Database**에 dvdrental, **Owner**에 postgres를 입력하고 **Save** 버튼을 클릭하여 dvdrental 데이터베이스를 생성합니다.   
 ![Restore-Sample-Database-Step-2](/assets/images/Restore-Sample-Database-Step-2.png)
 
-5. [샘플 데이터베이스를 다운로드](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) 하고 압축을 풉니다. 많은 파일이 포함된 디렉토리를 얻게 됩니다.
-![DVD-Rental](/assets/images/DVD%20Rental.png)
+5. [샘플 데이터베이스를 다운로드](https://www.postgresqltutorial.com/postgresql-getting-started/postgresql-sample-database/) 하고 압축을 풉니다. 많은 파일이 포함된 디렉토리를 얻게 됩니다.   
+![DVD-Rental](/assets/images/DVD%20Rental.png)   
 다이어그램에서 필드 앞에 나타나는 별표(*)는 기본 키를 나타냅니다.
 
-7. **dvdrental** 데이터베이스를 마우스 오른쪽 버튼으로 클릭하고 **Restore** 메뉴 항목을 선택합니다.
+7. **dvdrental** 데이터베이스를 마우스 오른쪽 버튼으로 클릭하고 **Restore** 메뉴 항목을 선택합니다.   
 ![Restore-Sample-Database-Step-3](/assets/images/Restore-Sample-Database-Step-3.png)
 
-8. **Format**에 Directory 선택 후, **Filename**을 샘플 데이터베이스가 포함된 위치로 해줍니다. 마지막으로 **Role name**을 postgres로 해주고 **Restore** 버튼을 클릭합니다.
+8. **Format**에 Directory 선택 후, **Filename**을 샘플 데이터베이스가 포함된 위치로 해줍니다. 마지막으로 **Role name**을 postgres로 해주고 **Restore** 버튼을 클릭합니다.   
 ![Sample-Database-Step(1)](/assets/images/Sample%20Database%20Step.png)
 
-9. 샘플 데이터베이스를 복원하는데 몇 초 정도 걸리며, 복원이 완료되면 다음과 같은 알람이 표시됩니다.
-![Sample-Database-Step(2)](/assets/images/Sample%20Database%20Step%20(1).png)
+9. 샘플 데이터베이스를 복원하는데 몇 초 정도 걸리며, 복원이 완료되면 다음과 같은 알람이 표시됩니다.   
+![Sample-Database-Step(2)](/assets/images/Sample%20Database%20Step%20(1).png)   
 이것은 샘플 데이터베이스를 성공적으로 생성하고 다운로드한 파일에서 복원 했음을 의미합니다.
 
 ---
