@@ -80,6 +80,7 @@ author_profile: true
 </head>
 
 ## Load the sample database
+PostgreSQL에 샘플 데이터베이스를 로드하는 방법에 대해서 알아보도록 하겠습니다.
 
 1. pgAdmin을 시작합니다.
 
