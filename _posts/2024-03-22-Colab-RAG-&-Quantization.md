@@ -419,9 +419,9 @@ LlamaForCausalLM(
 
 ```python
 # LangSmith API KEY
-os.environ["LANGCHAIN_API_KEY"] = "ls__b4dc86e2dd524d17b848e992506d205b"
+os.environ["LANGCHAIN_API_KEY"] = ""
 # Project Name
-os.environ["LANGCHAIN_PROJECT"] = "hansol"
+os.environ["LANGCHAIN_PROJECT"] = ""
 # 추적 설정
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 ```
