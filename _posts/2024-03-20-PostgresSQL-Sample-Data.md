@@ -73,7 +73,7 @@ author_profile: true
   }
 
   .page__content p > strong {
-    font-size: 0.8rem !important;
+    font-size: 1rem !important;
   }
 
   </style>
