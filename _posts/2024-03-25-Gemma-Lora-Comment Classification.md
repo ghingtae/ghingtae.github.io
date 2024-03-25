@@ -1542,13 +1542,6 @@ from google.colab import files
 files.download(file_name)
 ```
 
-<pre>
-<IPython.core.display.Javascript object>
-</pre>
-<pre>
-<IPython.core.display.Javascript object>
-</pre>
-
 ### result
 ---
 
