@@ -78,7 +78,6 @@ author_profile: true
 
   </style>
 </head>
-
 ## Content Summary
 
 
