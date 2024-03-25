@@ -1549,8 +1549,9 @@ files.download(file_name)
 <IPython.core.display.Javascript object>
 </pre>
 
-### **result**
+### result
 ---
+
 ![AIFactory_Gemma_Rank](/assets/images/AIFactory_Gemma.png)   
 0.96으로 100개 중 96개를 맞추었다.   
 
