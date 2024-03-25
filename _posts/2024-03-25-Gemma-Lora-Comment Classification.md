@@ -77,7 +77,8 @@ author_profile: true
   }
 
   </style>
-</head>
+</head>   
+
 ## Fine-tune Gemma models in Keras using LoRA
 
 
