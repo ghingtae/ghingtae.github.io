@@ -2,7 +2,7 @@
 layout: single
 title:  "SQL Agent: LangChain을 활용한 SQL 구문 생성 모델"
 categories: SQL
-tag: [RAG, coding, SQL]
+tag: [LangChain, coding, SQL, LLM, NLP]
 toc: true
 toc_sticky: true
 author_profile: true
