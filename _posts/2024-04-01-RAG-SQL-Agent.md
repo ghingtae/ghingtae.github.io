@@ -104,7 +104,7 @@ LangChain은 자연어 처리를 위한 프레임워크로, 특히 자연어 이
 
 
 
-![SQL_Agent](./images/sql_usecase.png)
+![SQL_Agent](/assets/images/sql_usecase.png)
 
 
 
@@ -150,7 +150,7 @@ os.environ["Langchain_SQL_Agent"] = "true"
 
 
 
-![chinook](./images/SQLite%20Sample%20Database%20Color.jpg)
+![chinook](/assets/images/SQLite%20Sample%20Database%20Color.jpg)
 
 
 
