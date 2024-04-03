@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "RAG: 원하는 SQL 쿼리를 LLM 모델을 사용하여 작성하는 시스템 개발"
+title:  "SQL Agent: LangChain을 활용한 SQL 구문 생성 모델"
 categories: SQL
 tag: [RAG, coding, SQL]
 toc: true
@@ -80,28 +80,36 @@ author_profile: true
 </head>
 
 
-## 개요 
+
+## 서론
 
 
 
-Q&A 시스템을 구축할 수 있는 가장 일반적인 유형의 데이터베이스 중 하나는 SQL 데이터베이스입니다.   
-
-LangChain에는 SQLAlchemy에서 지원하는 모든 SQL 언어(예: MySQL, PostgreSQL, Oracle SQL, Databricks, SQLite)와 호환되는 여러 내장 체인 및 에이전트가 함께 제공됩니다.   
-
-다음과 같은 사용 사례를 가능하게 합니다.   
+인공지능 기술의 급속한 발전은 자연어 처리(NLP)의 새로운 지평을 열었습니다. 특히, 자연어를 이해하고 이를 기반으로 특정 작업을 수행하는 언어 모델들이 주목을 받고 있습니다. 이러한 기술은 데이터베이스 쿼리 작성과 같은 분야에 혁신적인 변화를 가져오고 있습니다.
 
 
 
-* 자연어 질문을 기반으로 실행될 **SQL 쿼리 생성**
-
-* 데이터베이스 데이터를 기반으로 질문에 답할 수 있는 **챗봇 개발**
-
-* 사용자가 분석하고 싶은 인사이트를 바탕으로 **맞춤형 대시보드를 구축**
+이 튜토리얼에서는 LangChain을 활용하여 사용자의 자연어 질의를 SQL 구문으로 변환해주는 모델을 소개합니다. 이 모델은 질의 응답 시스템, 데이터 분석, 그리고 데이터베이스 관리 시스템 등에서 유용하게 사용될 수 있습니다.
 
 
-> 이번 튜토리얼에서는 SQL 데이터베이스를 통해 Q&A 체인과 에이전트를 만드는 기본 방법을 살펴보겠습니다.   
 
-> 이러한 시스템을 통해 우리는 SQL 데이터베이스의 데이터에 대해 질문하고 자연어 답변을 얻을 수 있습니다.   
+## LangChain이란?
+
+
+
+LangChain은 자연어 처리를 위한 프레임워크로, 특히 자연어 이해 및 생성 작업에 최적화되어 있습니다. LangChain을 사용하여 개발자는 복잡한 NLP 작업을 더 간단하고 효율적으로 구현할 수 있습니다. 이 프레임워크는 특히 자연어를 SQL 쿼리로 변환하는 기능을 포함하여, 데이터베이스와의 상호작용을 자연어 기반으로 단순화합니다.
+
+
+## 모델 구현 방법
+
+
+
+![SQL_Agent](./images/sql_usecase.png)
+
+
+
+### 패키지 설치 및 환경 변수 설정
+
 
 
 먼저 필수 패키지를 가져오고 환경 변수를 설정합니다.
@@ -109,15 +117,21 @@ LangChain에는 SQLAlchemy에서 지원하는 모든 SQL 언어(예: MySQL, Post
 
 
 ```python
-!pip install --upgrade --quiet langchain langchain-community langchain-openai
+%pip install --upgrade --quiet  langchain langchain-community langchain-openai
 ```
 
 <pre>
 [33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
 [0m[33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
+[0m[33m    WARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
 [0m[33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
-[0m
+[0m[33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
+[0m[33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
+[0mNote: you may need to restart the kernel to use updated packages.
 </pre>
+이 가이드에서는 기본적으로 OpenAI 모델을 사용합니다.
+
+
 
 ```python
 import getpass
@@ -128,74 +142,83 @@ import json
 with open('./api_key.json') as f:
     api_key_info = json.load(f)
 os.environ["OPENAI_API_KEY"] = api_key_info['OPENAI_API_KEY']
-
-# Uncomment the below to use LangSmith. Not required.
-# os.environ["LANGCHAIN_API_KEY"] = getpass.getpass()
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = api_key_info['LANGCHAIN_API_KEY']
+os.environ["Langchain_SQL_Agent"] = "true"
 ```
 
-아래 예는 Chinook DB와의 SQLite 연결을 수행합니다.
+### Chinook 데이터베이스 SQLite 연결
 
 
 
-* [이 파일](https://www.sqlitetutorial.net/sqlite-sample-database/)을 디렉터리에 `Chinook_Sqlite.sql`로 저장합니다.
-
-* `sqlite3 Chinook.db`를 실행합니다.
-
-* `.read Chinook_Sqlite.sql` 실행
-
-* 테스트 `SELECT * FROM Artist LIMIT 10;`
+![chinook](./images/SQLite%20Sample%20Database%20Color.jpg)
 
 
 
-이제 `Chinhook.db`가 디렉토리에 있습니다.
+SQLite를 연결하여 사용할 것이고 테스트 데이터베이스는 Chinook를 사용할 것입니다.   
 
+- 먼저 이 파일을 [Chinook_Sqlite.sql](https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Sqlite.sql)으로 저장합니다.
 
+- 터미널에서 `sqlite3 Chinook.db`를 실행합니다.
 
-SQL 쿼리를 생성하고 실행하기 위해 `SQLDatabaseChain`을 생성해 보겠습니다.
+- 그리고 `.read Chinook_Sqlite.sql`을 실행합니다.
+
+- `SELECT * FROM Artist LIMIT 10;`을 실행시켜 테스트 해봅니다.
 
 
 
 ```python
-from langchain.llms import OpenAI
-from langchain.utilities import SQLDatabase
-from langchain_experimental.sql import SQLDatabaseChain
+from langchain_community.utilities import SQLDatabase
 
-db = SQLDatabase.from_uri("sqlite:///chinook.db")
-llm = OpenAI(temperature=0, verbose=True)
-db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
+db = SQLDatabase.from_uri("sqlite:///Chinook.db")
+print(db.dialect)
+print(db.get_usable_table_names())
 ```
 
 <pre>
-/Users/ghingtae/miniforge3/envs/tf29_py39/lib/python3.9/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.openai.OpenAI` was deprecated in langchain-community 0.0.10 and will be removed in 0.2.0. An updated version of the class exists in the langchain-openai package and should be used instead. To use it run `pip install -U langchain-openai` and import as `from langchain_openai import OpenAI`.
-  warn_deprecated(
+sqlite
+['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
 </pre>
 
 ```python
-db_chain.run("몇명의 직원이 있어?")
+db.run("SELECT * FROM Artist LIMIT 10;")
 ```
 
-## Case 1: Text-to-SQL query
+<pre>
+"[(1, 'AC/DC'), (2, 'Accept'), (3, 'Aerosmith'), (4, 'Alanis Morissette'), (5, 'Alice In Chains'), (6, 'Antônio Carlos Jobim'), (7, 'Apocalyptica'), (8, 'Audioslave'), (9, 'BackBeat'), (10, 'Billy Cobham')]"
+</pre>
+### SQL 체인 만들기: 질문에서 SQL 쿼리로 변환하기
+
+
+
+사용자의 질문을 받아 SQL 쿼리로 변환하고, 해당 쿼리를 실행한 후, 그 결과를 사용해 원래의 질문에 답하는 코드를 작성합니다.
+
+
+
+#### 질문을 SQL 쿼리로 변환하기
+
+
+
+SQL 체인 또는 에이전트의 첫 번째 단계는 사용자 입력을 SQL 쿼리로 변환하는 것입니다. LangChain은 이를 위한 내장 체인을 제공합니다: [create_sql_query_chain](https://api.python.langchain.com/en/latest/chains/langchain.chains.sql_database.query.create_sql_query_chain.html).
+
+
 
 
 
 
 ```python
 from langchain.chains import create_sql_query_chain
-from langchain.chat_models import ChatOpenAI
-```
+from langchain_openai import ChatOpenAI
 
-SQL 쿼리를 작성할 체인을 만들어 보겠습니다:
-
-
-
-```python
-chain = create_sql_query_chain(ChatOpenAI(temperature=0), db)
+llm = ChatOpenAI(model="gpt-4", temperature=0)
+chain = create_sql_query_chain(llm, db)
 response = chain.invoke({"question": "How many employees are there"})
-print(response)
+response
 ```
 
-사용자 질문을 기반으로 SQL 쿼리를 작성하고 나면 쿼리를 실행할 수 있습니다:
+<pre>
+'SELECT COUNT(*) AS "Number of Employees" FROM "Employee"'
+</pre>
+쿼리를 실행하여 유효한지 확인할 수 있습니다:
 
 
 
@@ -206,140 +229,153 @@ db.run(response)
 <pre>
 '[(8,)]'
 </pre>
-보시다시피 SQL 쿼리 빌더 체인은 쿼리를 **생성만**하고 **쿼리 실행**은 별도로 처리했습니다.
-
-
-## Case 2: Text-to-SQL query and execution
-
-
-
-`langchain_experiment`의 `SQLDatabaseChain`을 사용하여 SQL 쿼리를 생성하고 실행할 수 있습니다.
+`chain.get_prompts()`를 통해 프롬프트 설정을 살펴볼 수 있습니다.
 
 
 
 ```python
-from langchain.llms import OpenAI
-from langchain_experimental.sql import SQLDatabaseChain
-
-llm = OpenAI(temperature=0, verbose=True)
-db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
-```
-
-
-```python
-db_chain.run("직원이 몇명이나 있어?")
+chain.get_prompts()[0].pretty_print()
 ```
 
 <pre>
+You are a SQLite expert. Given an input question, first create a syntactically correct SQLite query to run, then look at the results of the query and return the answer to the input question.
+Unless the user specifies in the question a specific number of examples to obtain, query for at most 5 results using the LIMIT clause as per SQLite. You can order the results to return the most informative data in the database.
+Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in double quotes (") to denote them as delimited identifiers.
+Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
+Pay attention to use date('now') function to get the current date, if the question involves "today".
 
+Use the following format:
 
-[1m> Entering new SQLDatabaseChain chain...[0m
-직원이 몇명이나 있어?
-SQLQuery:[32;1m[1;3mSELECT COUNT(*) FROM employees;[0m
-SQLResult: [33;1m[1;3m[(8,)][0m
-Answer:[32;1m[1;3m직원은 8명입니다.[0m
-[1m> Finished chain.[0m
+Question: Question here
+SQLQuery: SQL Query to run
+SQLResult: Result of the SQLQuery
+Answer: Final answer here
+
+Only use the following tables:
+[33;1m[1;3m{table_info}[0m
+
+Question: [33;1m[1;3m{input}[0m
 </pre>
-<pre>
-'직원은 8명입니다.'
-</pre>
-보시다시피 이전 사례와 동일한 결과를 얻을 수 있습니다.
+### SQL 쿼리 실행 후 chain 추가
 
 
 
-여기서 체인은 **쿼리 실행도 처리**하고 사용자 질문과 쿼리 결과를 기반으로 최종 답변을 제공합니다.
+`QuerySQLDataBaseTool`을 사용하면 쿼리 실행을 우리의 체인에 쉽게 추가할 수 있습니다.   
 
-
-
-이 방식은 'SQL 인젝션'에 취약하기 때문에 사용 시 **주의**해야 합니다:
-
-
-
-* 체인이 LLM에 의해 생성되고 검증되지 않은 쿼리를 실행하고 있습니다.
-
-* 예: 레코드가 의도치 않게 생성, 수정 또는 삭제될 수 있음_.
-
-
-
-이것이 바로 `SQLDatabaseChain`이 `랭체인_실험` 안에 있는 이유입니다.
-
-
-## Case 3: SQL Agent
-
-
-
-LangChain에는 `SQLDatabaseChain`보다 SQL 데이터베이스와 상호 작용하는 더 유연한 방법을 제공하는 SQL 에이전트가 있습니다.
-
-
-
-SQL 에이전트 사용의 주요 장점은 다음과 같습니다:
-
-
-
-- 데이터베이스의 스키마뿐만 아니라 데이터베이스의 콘텐츠(예: 특정 테이블 설명)를 기반으로 질문에 답변할 수 있습니다.
-
-- 생성된 쿼리를 실행하고 트레이스백을 포착하여 올바르게 다시 생성함으로써 오류로부터 복구할 수 있습니다.
-
-
-
-에이전트를 초기화하기 위해 `create_sql_agent` 함수를 사용합니다.
-
-
-
-이 에이전트에는 다음과 같은 도구가 포함된 `SQLDatabaseToolkit`이 포함되어 있습니다:
-
-
-
-* 쿼리 생성 및 실행
-
-* 쿼리 구문 확인
-
-* 테이블 설명 검색
-
-* ... 등
+하지만 실제로 쿼리를 DB에 실행하기 때문에 주의해서 사용해야합니다:
 
 
 
 ```python
-from langchain.agents import create_sql_agent
+from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
+
+# 데이터베이스 쿼리를 실행하기 위한 도구를 초기화
+execute_query = QuerySQLDataBaseTool(db=db)
+# SQL 쿼리를 작성하기 위한 체인을 생성
+write_query = create_sql_query_chain(llm, db)
+chain = write_query | execute_query
+# 체인을 사용하여 질문에 대한 SQL 쿼리를 실행
+chain.invoke({"question": "How many employees are there"})
+```
+
+<pre>
+'[(8,)]'
+</pre>
+### 쿼리 결과를 최종 답으로 변환
+
+
+
+쿼리를 자동으로 생성하고 실행하는 방법을 마련한 이후, 원래의 질문과 SQL 쿼리 결과를 결합하여 최종 답변을 생성할 필요가 있습니다.   
+
+이를 위해 질문과 결과를 다시 LLM에 전달하여 최종 답변을 생성할 수 있습니다:
+
+
+
+```python
+from operator import itemgetter
+
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+# 쿼리의 결과를 해석하고 사용자 질문에 답변하기 위한 프롬프트 템플릿을 설정
+answer_prompt = PromptTemplate.from_template(
+    """Given the following user question, corresponding SQL query, and SQL result, answer the user question.
+
+Question: {question}
+SQL Query: {query}
+SQL Result: {result}
+Answer: """
+)
+
+# 답변 생성 프로세스를 설정
+answer = answer_prompt | llm | StrOutputParser()
+chain = (
+    RunnablePassthrough.assign(query=write_query).assign(
+        result=itemgetter("query") | execute_query
+    )
+    | answer
+)
+
+chain.invoke({"question": "How many employees are there"})
+```
+
+<pre>
+'There are 8 employees.'
+</pre>
+이 코드는 사용자의 질문, 해당하는 SQL 쿼리, 그리고 SQL 쿼리 결과를 바탕으로 사용자의 질문에 대한 답변을 생성합니다.   
+
+chain을 통해 이루어 졌으며 LangChain에서는 Chain보다 SQL 데이터베이스와 더 유연한 상호 작용 방법을 제공하는 SQL Agent가 있습니다.   
+
+
+
+## SQL Agent
+
+
+
+SQL Agent 사용 이점은 다음과 같습니다:
+
+
+
+- 데이터베이스의 스키마는 물론 데이터베이스의 콘텐츠(예: 특정 테이블 설명)를 기반으로 질문에 답할 수 있습니다.
+
+- 생성된 쿼리를 실행하고, 역추적을 포착하고, 이를 올바르게 다시 생성하여 오류를 복구할 수 있습니다.
+
+- 사용자 질문에 답하기 위해 필요한 만큼 데이터베이스를 쿼리할 수 있습니다.
+
+- 관련 테이블에서만 스키마를 검색하여 토큰을 저장합니다.(토큰 절약)
+
+
+
+```python
+from langchain_community.agent_toolkits import create_sql_agent
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 
-# from langchain.agents import AgentExecutor
 from langchain.agents.agent_types import AgentType
 
-db = SQLDatabase.from_uri("sqlite:///chinook.db")
+from langchain_openai import ChatOpenAI
 
-agent_executor = create_sql_agent(
-    llm=OpenAI(temperature=0),
-    toolkit=SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0)),
-    verbose=True,
-    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-)
+llm = ChatOpenAI(model="gpt-4", temperature=0)
+agent_executor = create_sql_agent(llm, toolkit=SQLDatabaseToolkit(db=db, llm=llm), agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
 ```
-
-### Agent task example #1 - Running queries
-
-
 
 
 ```python
-agent_executor.run(
-    "국가별 총 매출을 나열합니다. 어느 국가의 고객이 가장 많이 지출했나요?"
+agent_executor.invoke(
+    "List the total sales per country. Which country's customers spent the most?"
 )
 ```
 
 <pre>
 
 
-[1m> Entering new AgentExecutor chain...[0m
-[32;1m[1;3mAction: sql_db_list_tables
-Action Input: [0m
-Observation: [38;5;200m[1;3malbums, artists, customers, employees, genres, invoice_items, invoices, media_types, playlist_track, playlists, tracks[0m
-Thought:[32;1m[1;3m I should query the schema of the customers and invoices tables.
+[1m> Entering new SQL Agent Executor chain...[0m
+[32;1m[1;3mTo answer this question, I need to find a table that contains information about sales and country. I will then need to sum the sales per country and order the results to find the country with the highest total sales.
+Action: sql_db_list_tables
+Action Input: ""[0m[38;5;200m[1;3mAlbum, Artist, Customer, Employee, Genre, Invoice, InvoiceLine, MediaType, Playlist, PlaylistTrack, Track[0m[32;1m[1;3mThe tables 'Customer' and 'Invoice' seem to be the most relevant for this query. The 'Customer' table likely contains information about the customer's country, and the 'Invoice' table likely contains information about the sales. I need to check the schema of these tables to confirm.
 Action: sql_db_schema
-Action Input: customers, invoices[0m
-Observation: [33;1m[1;3m
-CREATE TABLE customers (
+Action Input: Customer, Invoice[0m[33;1m[1;3m
+CREATE TABLE "Customer" (
 	"CustomerId" INTEGER NOT NULL, 
 	"FirstName" NVARCHAR(40) NOT NULL, 
 	"LastName" NVARCHAR(20) NOT NULL, 
@@ -354,11 +390,11 @@ CREATE TABLE customers (
 	"Email" NVARCHAR(60) NOT NULL, 
 	"SupportRepId" INTEGER, 
 	PRIMARY KEY ("CustomerId"), 
-	FOREIGN KEY("SupportRepId") REFERENCES employees ("EmployeeId")
+	FOREIGN KEY("SupportRepId") REFERENCES "Employee" ("EmployeeId")
 )
 
 /*
-3 rows from customers table:
+3 rows from Customer table:
 CustomerId	FirstName	LastName	Company	Address	City	State	Country	PostalCode	Phone	Fax	Email	SupportRepId
 1	Luís	Gonçalves	Embraer - Empresa Brasileira de Aeronáutica S.A.	Av. Brigadeiro Faria Lima, 2170	São José dos Campos	SP	Brazil	12227-000	+55 (12) 3923-5555	+55 (12) 3923-5566	luisg@embraer.com.br	3
 2	Leonie	Köhler	None	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	+49 0711 2842222	None	leonekohler@surfeu.de	5
@@ -366,7 +402,7 @@ CustomerId	FirstName	LastName	Company	Address	City	State	Country	PostalCode	Phon
 */
 
 
-CREATE TABLE invoices (
+CREATE TABLE "Invoice" (
 	"InvoiceId" INTEGER NOT NULL, 
 	"CustomerId" INTEGER NOT NULL, 
 	"InvoiceDate" DATETIME NOT NULL, 
@@ -377,292 +413,337 @@ CREATE TABLE invoices (
 	"BillingPostalCode" NVARCHAR(10), 
 	"Total" NUMERIC(10, 2) NOT NULL, 
 	PRIMARY KEY ("InvoiceId"), 
-	FOREIGN KEY("CustomerId") REFERENCES customers ("CustomerId")
+	FOREIGN KEY("CustomerId") REFERENCES "Customer" ("CustomerId")
 )
 
 /*
-3 rows from invoices table:
+3 rows from Invoice table:
 InvoiceId	CustomerId	InvoiceDate	BillingAddress	BillingCity	BillingState	BillingCountry	BillingPostalCode	Total
-1	2	2009-01-01 00:00:00	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	1.98
-2	4	2009-01-02 00:00:00	Ullevålsveien 14	Oslo	None	Norway	0171	3.96
-3	8	2009-01-03 00:00:00	Grétrystraat 63	Brussels	None	Belgium	1000	5.94
-*/[0m
-Thought:[32;1m[1;3m I should query the customers and invoices tables to get the total sales by country.
+1	2	2021-01-01 00:00:00	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	1.98
+2	4	2021-01-02 00:00:00	Ullevålsveien 14	Oslo	None	Norway	0171	3.96
+3	8	2021-01-03 00:00:00	Grétrystraat 63	Brussels	None	Belgium	1000	5.94
+*/[0m[32;1m[1;3mThe 'Customer' table contains a 'Country' field and the 'Invoice' table contains a 'Total' field which represents the total sales. The 'CustomerId' field is common in both tables, so I can join these tables on this field. Now I can write a SQL query to sum the total sales per country and order the results in descending order to find the country with the highest total sales.
+Action: sql_db_query_checker
+Action Input: SELECT Customer.Country, SUM(Invoice.Total) as TotalSales FROM Customer JOIN Invoice ON Customer.CustomerId = Invoice.CustomerId GROUP BY Customer.Country ORDER BY TotalSales DESC[0m[36;1m[1;3mSELECT Customer.Country, SUM(Invoice.Total) as TotalSales FROM Customer JOIN Invoice ON Customer.CustomerId = Invoice.CustomerId GROUP BY Customer.Country ORDER BY TotalSales DESC[0m[32;1m[1;3mThe SQL query is correct. Now I can execute this query to get the total sales per country and find out which country's customers spent the most.
 Action: sql_db_query
-Action Input: SELECT customers.Country, SUM(invoices.Total) AS TotalSales FROM customers INNER JOIN invoices ON customers.CustomerId = invoices.CustomerId GROUP BY customers.Country ORDER BY TotalSales DESC LIMIT 10[0m
-Observation: [36;1m[1;3m[('USA', 523.0600000000004), ('Canada', 303.96), ('France', 195.09999999999994), ('Brazil', 190.1), ('Germany', 156.48), ('United Kingdom', 112.85999999999999), ('Czech Republic', 90.24), ('Portugal', 77.24), ('India', 75.25999999999999), ('Chile', 46.62)][0m
-Thought:[32;1m[1;3m I now know the final answer
-Final Answer: 가장 많이 지출한 국가는 미국입니다.[0m
+Action Input: SELECT Customer.Country, SUM(Invoice.Total) as TotalSales FROM Customer JOIN Invoice ON Customer.CustomerId = Invoice.CustomerId GROUP BY Customer.Country ORDER BY TotalSales DESC[0m[36;1m[1;3m[('USA', 523.06), ('Canada', 303.96), ('France', 195.1), ('Brazil', 190.1), ('Germany', 156.48), ('United Kingdom', 112.86), ('Czech Republic', 90.24), ('Portugal', 77.24), ('India', 75.26), ('Chile', 46.62), ('Ireland', 45.62), ('Hungary', 45.62), ('Austria', 42.62), ('Finland', 41.62), ('Netherlands', 40.62), ('Norway', 39.62), ('Sweden', 38.62), ('Spain', 37.62), ('Poland', 37.62), ('Italy', 37.62), ('Denmark', 37.62), ('Belgium', 37.62), ('Australia', 37.62), ('Argentina', 37.62)][0m[32;1m[1;3mI now know the final answer.
+Final Answer: The country where customers spent the most is USA with total sales of 523.06.[0m
 
 [1m> Finished chain.[0m
 </pre>
 <pre>
-'가장 많이 지출한 국가는 미국입니다.'
+{'input': "List the total sales per country. Which country's customers spent the most?",
+ 'output': 'The country where customers spent the most is USA with total sales of 523.06.'}
 </pre>
-### Agent task example #2 - Describing a Table
+### SQL Toolkit 확장 기능
+
+
+
+이 확장 기능은 사용자가 SQL 쿼리를 더욱 효과적으로 작성할 수 있도록 지원합니다. 주요 기능으로는 Dynamic few-shot prompt 사용과 고유명사의 철자 오류 탐지가 있습니다.
+
+
+
+#### Using a dynamic few-shot prompt
+
+
+
+사용자가 질문을 할 때, SQL 쿼리문을 작성하는 데 어려움을 겪거나 실수를 방지하기 위해 몇 가지 예제를 제공하는 기능입니다. 이를 통해 사용자는 쿼리 작성 시 참고할 수 있는 동적인 퓨샷 프롬프트를 활용할 수 있습니다.
 
 
 
 ```python
-agent_executor.run("playlisttrack 테이블에 대해서 설명해줄래?")
-```
-
-<pre>
-
-
-[1m> Entering new AgentExecutor chain...[0m
-[32;1m[1;3mAction: sql_db_list_tables
-Action Input: [0m
-Observation: [38;5;200m[1;3malbums, artists, customers, employees, genres, invoice_items, invoices, media_types, playlist_track, playlists, tracks[0m
-Thought:[32;1m[1;3m The most relevant table is playlist_track, so I should query the schema of that table.
-Action: sql_db_schema
-Action Input: playlist_track[0m
-Observation: [33;1m[1;3m
-CREATE TABLE playlist_track (
-	"PlaylistId" INTEGER NOT NULL, 
-	"TrackId" INTEGER NOT NULL, 
-	PRIMARY KEY ("PlaylistId", "TrackId"), 
-	FOREIGN KEY("TrackId") REFERENCES tracks ("TrackId"), 
-	FOREIGN KEY("PlaylistId") REFERENCES playlists ("PlaylistId")
-)
-
-/*
-3 rows from playlist_track table:
-PlaylistId	TrackId
-1	3402
-1	3389
-1	3390
-*/[0m
-Thought:[32;1m[1;3m I now know the final answer
-Final Answer: playlist_track 테이블은 PlaylistId와 TrackId를 가지고 있는 테이블이며, PlaylistId와 TrackId는 각각 playlists 테이블과 tracks 테이블과 연결되어 있습니다.[0m
-
-[1m> Finished chain.[0m
-</pre>
-<pre>
-'playlist_track 테이블은 PlaylistId와 TrackId를 가지고 있는 테이블이며, PlaylistId와 TrackId는 각각 playlists 테이블과 tracks 테이블과 연결되어 있습니다.'
-</pre>
-### SQL 툴킷 확장하기
-
-
-
-기본 제공되는 SQL 툴킷에는 데이터베이스 작업을 시작하는 데 필요한 도구가 포함되어 있지만, 에이전트의 기능을 확장하는 데 몇 가지 추가 도구가 유용할 수 있는 경우가 종종 있습니다. 이는 솔루션의 전반적인 성능을 개선하기 위해 솔루션에서 **도메인별 지식**을 사용하려고 할 때 특히 유용합니다.
-
-
-
-몇 가지 예는 다음과 같습니다:
-
-
-
-- Dynamic Few shot 예시 포함
-
-- 열 필터로 사용할 고유명사의 철자 오류 찾기
-
-
-
-이러한 특정 사용 사례를 처리하는 별도의 도구를 만들어 표준 SQL 도구 키트에 보완용으로 포함할 수 있습니다. 이 두 가지 사용자 정의 도구를 포함하는 방법을 살펴보겠습니다.
-
-
-
-#### Dynamic Few shot 예제 포함
-
-
-
-Dynamic Few shot 예제를 포함하려면 사용자의 질문과 의미적으로 유사한 예제를 검색하기 위해 벡터 데이터베이스를 처리하는 사용자 지정 **검색 도구**가 필요합니다.
-
-
-
-몇 가지 예제가 포함된 사전을 만드는 것부터 시작하겠습니다:
-
-
-
-```python
-few_shots = {
-    "List all artists.": "SELECT * FROM artists;",
-    "Find all albums for the artist 'AC/DC'.": "SELECT * FROM albums WHERE ArtistId = (SELECT ArtistId FROM artists WHERE Name = 'AC/DC');",
-    "List all tracks in the 'Rock' genre.": "SELECT * FROM tracks WHERE GenreId = (SELECT GenreId FROM genres WHERE Name = 'Rock');",
-    "Find the total duration of all tracks.": "SELECT SUM(Milliseconds) FROM tracks;",
-    "List all customers from Canada.": "SELECT * FROM customers WHERE Country = 'Canada';",
-    "How many tracks are there in the album with ID 5?": "SELECT COUNT(*) FROM tracks WHERE AlbumId = 5;",
-    "Find the total number of invoices.": "SELECT COUNT(*) FROM invoices;",
-    "List all tracks that are longer than 5 minutes.": "SELECT * FROM tracks WHERE Milliseconds > 300000;",
-    "Who are the top 5 customers by total purchase?": "SELECT CustomerId, SUM(Total) AS TotalPurchase FROM invoices GROUP BY CustomerId ORDER BY TotalPurchase DESC LIMIT 5;",
-    "Which albums are from the year 2000?": "SELECT * FROM albums WHERE strftime('%Y', ReleaseDate) = '2000';",
-    "How many employees are there": 'SELECT COUNT(*) FROM "employee"',
-}
-```
-
-그런 다음 질문 목록을 사용하여 검색기를 생성하고 대상 SQL 쿼리를 메타데이터로 할당할 수 있습니다:
-
-
-
-```python
-!pip install tiktoken faiss-cpu
-```
-
-<pre>
-Collecting tiktoken
-  Downloading tiktoken-0.5.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
-[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2.0/2.0 MB[0m [31m10.1 MB/s[0m eta [36m0:00:00[0m
-[?25hCollecting faiss-cpu
-  Downloading faiss_cpu-1.7.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (17.6 MB)
-[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m17.6/17.6 MB[0m [31m47.1 MB/s[0m eta [36m0:00:00[0m
-[?25hRequirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.10/dist-packages (from tiktoken) (2023.6.3)
-Requirement already satisfied: requests>=2.26.0 in /usr/local/lib/python3.10/dist-packages (from tiktoken) (2.31.0)
-Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests>=2.26.0->tiktoken) (3.3.2)
-Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests>=2.26.0->tiktoken) (3.4)
-Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests>=2.26.0->tiktoken) (2.0.7)
-Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests>=2.26.0->tiktoken) (2023.7.22)
-Installing collected packages: faiss-cpu, tiktoken
-[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-llmx 0.0.15a0 requires cohere, which is not installed.[0m[31m
-[0mSuccessfully installed faiss-cpu-1.7.4 tiktoken-0.5.1
-</pre>
-
-```python
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.schema import Document
-from langchain.vectorstores import FAISS
-
-embeddings = OpenAIEmbeddings()
-
-few_shot_docs = [
-    Document(page_content=question, metadata={"sql_query": few_shots[question]})
-    for question in few_shots.keys()
+examples = [
+    {"input": "List all artists.", "query": "SELECT * FROM Artist;"},
+    {
+        "input": "Find all albums for the artist 'AC/DC'.",
+        "query": "SELECT * FROM Album WHERE ArtistId = (SELECT ArtistId FROM Artist WHERE Name = 'AC/DC');",
+    },
+    {
+        "input": "List all tracks in the 'Rock' genre.",
+        "query": "SELECT * FROM Track WHERE GenreId = (SELECT GenreId FROM Genre WHERE Name = 'Rock');",
+    },
+    {
+        "input": "Find the total duration of all tracks.",
+        "query": "SELECT SUM(Milliseconds) FROM Track;",
+    },
+    {
+        "input": "List all customers from Canada.",
+        "query": "SELECT * FROM Customer WHERE Country = 'Canada';",
+    },
+    {
+        "input": "How many tracks are there in the album with ID 5?",
+        "query": "SELECT COUNT(*) FROM Track WHERE AlbumId = 5;",
+    },
+    {
+        "input": "Find the total number of invoices.",
+        "query": "SELECT COUNT(*) FROM Invoice;",
+    },
+    {
+        "input": "List all tracks that are longer than 5 minutes.",
+        "query": "SELECT * FROM Track WHERE Milliseconds > 300000;",
+    },
+    {
+        "input": "Who are the top 5 customers by total purchase?",
+        "query": "SELECT CustomerId, SUM(Total) AS TotalPurchase FROM Invoice GROUP BY CustomerId ORDER BY TotalPurchase DESC LIMIT 5;",
+    },
+    {
+        "input": "Which albums are from the year 2000?",
+        "query": "SELECT * FROM Album WHERE strftime('%Y', ReleaseDate) = '2000';",
+    },
+    {
+        "input": "How many employees are there",
+        "query": 'SELECT COUNT(*) FROM "Employee"',
+    },
 ]
-vector_db = FAISS.from_documents(few_shot_docs, embeddings)
-retriever = vector_db.as_retriever()
 ```
 
-이제 고유한 사용자 지정 도구를 만들어 'create_sql_agent' 함수에 새 도구로 추가할 수 있습니다:
+**예제 선택기 구현**   
+
+   
+
+이 기능을 통해 사용자의 실제 입력을 받아 가장 유사한 예제를 몇 가지 선택하고, 이를 퓨샷 프롬프트에 추가하여 사용자가 작성하고자 하는 SQL 쿼리를 도울 수 있습니다. 의미 검색을 위해 구성한 임베딩과 벡터 저장소를 활용해 입력과 가장 유사한 예제를 찾습니다.   
+
+   
+
+이 확장 기능은 사용자가 SQL 쿼리를 보다 정확하고 효율적으로 작성할 수 있도록 지원합니다. 동적 퓨샷 프롬프트를 통해 사용자는 쿼리 작성 시 참고할 수 있는 유용한 예제들을 쉽게 접할 수 있으며, 고유명사의 철자 오류 탐지 기능 또한 쿼리 작성의 정확도를 높이는 데 기여합니다.   
 
 
 
 ```python
-from langchain.agents.agent_toolkits import create_retriever_tool
+from langchain_community.vectorstores import FAISS
+from langchain_core.example_selectors import SemanticSimilarityExampleSelector
+from langchain_openai import OpenAIEmbeddings
 
-tool_description = """
-이 도구는 유사한 예시를 이해하여 사용자 질문에 적용하는 데 도움이 됩니다.
-이 도구에 입력하는 내용은 사용자 질문이어야 합니다.
-"""
-
-retriever_tool = create_retriever_tool(
-    retriever, name="sql_get_similar_examples", description=tool_description
+# 유사성 기반의 예시 선택기를 초기화
+example_selector = SemanticSimilarityExampleSelector.from_examples(
+    examples,
+    OpenAIEmbeddings(),
+    FAISS,
+    k=5,
+    input_keys=["input"],
 )
-custom_tool_list = [retriever_tool]
 ```
 
-이제 사용 사례를 고려하여 표준 SQL 에이전트 접미사를 조정하여 에이전트를 만들 수 있습니다. 이를 처리하는 가장 간단한 방법은 도구 설명에 포함시키는 것이지만, 이것만으로는 충분하지 않은 경우가 많으므로 생성자의 '접미사' 인수를 사용하여 에이전트 프롬프트에서 이를 지정해야 합니다.
+**FewShotPromptTemplate 생성하기**   
+
+   
+
+FewShotPromptTemplate를 만들어 사용자가 SQL 데이터베이스와 상호작용할 수 있는 에이전트를 구현해 보겠습니다. 이 템플릿은 예제 선택기, 예제의 형식을 정의하는 프롬프트, 그리고 형식 지정된 예제 앞뒤로 추가할 문자열 접두사 및 접미사를 포함합니다.
 
 
 
 ```python
-from langchain.agents import AgentType, create_sql_agent
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
-from langchain.chat_models import ChatOpenAI
-from langchain.utilities import SQLDatabase
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    FewShotPromptTemplate,
+    MessagesPlaceholder,
+    PromptTemplate,
+    SystemMessagePromptTemplate,
+)
 
-db = SQLDatabase.from_uri("sqlite:///chinook.db")
-llm = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0)
+# 프롬프트 템플릿을 설정하는 여러 방법
+system_prefix = """You are an agent designed to interact with a SQL database.
+Given an input question, create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer.
+Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most {top_k} results.
+You can order the results by a relevant column to return the most interesting examples in the database.
+Never query for all the columns from a specific table, only ask for the relevant columns given the question.
+You have access to tools for interacting with the database.
+Only use the given tools. Only use the information returned by the tools to construct your final answer.
+You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
 
-toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
-custom_suffix = """
-먼저 제가 알고 있는 비슷한 예제를 가져와야 합니다.
-예제가 쿼리를 구성하기에 충분하다면 쿼리를 작성할 수 있습니다.
-그렇지 않으면 데이터베이스의 테이블을 살펴보고 쿼리할 수 있는 항목을 확인할 수 있습니다.
-그런 다음 가장 관련성이 높은 테이블의 스키마를 쿼리해야 합니다.
-"""
+If the question does not seem related to the database, just return "I don't know" as the answer.
 
+Here are some examples of user inputs and their corresponding SQL queries:"""
+
+# Few-shot 학습을 위한 프롬프트 템플릿을 설정
+few_shot_prompt = FewShotPromptTemplate(
+    example_selector=example_selector,
+    example_prompt=PromptTemplate.from_template(
+        "User input: {input}\nSQL query: {query}"
+    ),
+    input_variables=["input", "dialect", "top_k"],
+    prefix=system_prefix,
+    suffix="",
+)
+```
+
+기본 에이전트는 OpenAI 함수 호출을 사용하는 [OpenAI tools agent](https://python.langchain.com/docs/modules/agents/agent_types/openai_tools)입니다.   
+
+따라서 전체 프롬프트는 시스템 메시지를 위한 퓨샷 프롬프트와 함께 휴먼 메시지 템플릿, agent_scratchpad에 해당하는 `MessagesPlaceholder`를 포함한 채팅 프롬프트 형식이어야 합니다:
+
+
+
+```python
+# 대화형 프롬프트 템플릿을 설정
+full_prompt = ChatPromptTemplate.from_messages(
+    [
+        SystemMessagePromptTemplate(prompt=few_shot_prompt),
+        ("human", "{input}"),
+        MessagesPlaceholder("agent_scratchpad"),
+    ]
+)
+```
+
+
+```python
+# 예시로 포맷된 프롬프트 값을 출력
+prompt_val = full_prompt.invoke(
+    {
+        "input": "How many arists are there",
+        "top_k": 5,
+        "dialect": "SQLite",
+        "agent_scratchpad": [],
+    }
+)
+print(prompt_val.to_string())
+```
+
+<pre>
+System: You are an agent designed to interact with a SQL database.
+Given an input question, create a syntactically correct SQLite query to run, then look at the results of the query and return the answer.
+Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 5 results.
+You can order the results by a relevant column to return the most interesting examples in the database.
+Never query for all the columns from a specific table, only ask for the relevant columns given the question.
+You have access to tools for interacting with the database.
+Only use the given tools. Only use the information returned by the tools to construct your final answer.
+You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
+
+DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+
+If the question does not seem related to the database, just return "I don't know" as the answer.
+
+Here are some examples of user inputs and their corresponding SQL queries:
+
+User input: List all artists.
+SQL query: SELECT * FROM Artist;
+
+User input: How many employees are there
+SQL query: SELECT COUNT(*) FROM "Employee"
+
+User input: How many tracks are there in the album with ID 5?
+SQL query: SELECT COUNT(*) FROM Track WHERE AlbumId = 5;
+
+User input: List all tracks in the 'Rock' genre.
+SQL query: SELECT * FROM Track WHERE GenreId = (SELECT GenreId FROM Genre WHERE Name = 'Rock');
+
+User input: Which albums are from the year 2000?
+SQL query: SELECT * FROM Album WHERE strftime('%Y', ReleaseDate) = '2000';
+Human: How many arists are there
+</pre>
+이제 사용자 지정 프롬프트를 활용하여 에이전트를 생성할 수 있습니다:
+
+
+
+```python
+# SQL 데이터베이스와 상호작용하기 위한 에이전트를 생성
 agent = create_sql_agent(
     llm=llm,
-    toolkit=toolkit,
+    db=db,
+    prompt=full_prompt,
     verbose=True,
-    agent_type=AgentType.OPENAI_FUNCTIONS,
-    extra_tools=custom_tool_list,
-    suffix=custom_suffix,
+    agent_type="openai-tools",
 )
 ```
 
-Let's try it out:
-
-
 
 ```python
-agent.run("How many employees do we have?")
+agent.invoke({"input": "How many artists are there?"})
 ```
 
 <pre>
 
 
-[1m> Entering new AgentExecutor chain...[0m
+[1m> Entering new SQL Agent Executor chain...[0m
 [32;1m[1;3m
-Invoking: `sql_get_similar_examples` with `{'query': 'How many employees do we have?'}`
+Invoking: `sql_db_query` with `{'query': 'SELECT COUNT(*) FROM Artist'}`
 
 
-[0m[33;1m[1;3m[Document(page_content='How many employees are there', metadata={'sql_query': 'SELECT COUNT(*) FROM "employee"'}), Document(page_content='Find the total number of invoices.', metadata={'sql_query': 'SELECT COUNT(*) FROM invoices;'}), Document(page_content='Who are the top 5 customers by total purchase?', metadata={'sql_query': 'SELECT CustomerId, SUM(Total) AS TotalPurchase FROM invoices GROUP BY CustomerId ORDER BY TotalPurchase DESC LIMIT 5;'}), Document(page_content='List all customers from Canada.', metadata={'sql_query': "SELECT * FROM customers WHERE Country = 'Canada';"})][0m[32;1m[1;3m
-Invoking: `sql_db_query_checker` with `SELECT COUNT(*) FROM employee`
-
-
-[0m[36;1m[1;3mSELECT COUNT(*) FROM employee[0m[32;1m[1;3m
-Invoking: `sql_db_query` with `SELECT COUNT(*) FROM employee`
-
-
-[0m[36;1m[1;3mError: (sqlite3.OperationalError) no such table: employee
-[SQL: SELECT COUNT(*) FROM employee]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)[0m[32;1m[1;3m
-Invoking: `sql_db_list_tables` with ``
-
-
-[0m[38;5;200m[1;3malbums, artists, customers, employees, genres, invoice_items, invoices, media_types, playlist_track, playlists, tracks[0m[32;1m[1;3m
-Invoking: `sql_db_query` with `SELECT COUNT(*) FROM employees`
-
-
-[0m[36;1m[1;3m[(8,)][0m[32;1m[1;3mWe have a total of 8 employees.[0m
+[0m[36;1m[1;3m[(275,)][0m[32;1m[1;3mThere are 275 artists.[0m
 
 [1m> Finished chain.[0m
 </pre>
 <pre>
-'We have a total of 8 employees.'
+{'input': 'How many artists are there?', 'output': 'There are 275 artists.'}
 </pre>
-보시다시피, 에이전트는 먼저 `sql_get_similar_examples` 도구를 사용하여 유사한 예제를 검색했습니다. 질문이 다른 몇 개의 샷 예제와 매우 유사했기 때문에 에이전트는 표준 툴킷의 다른 툴을 사용할 필요가 없었기 때문에 **시간과 토큰을 절약**할 수 있었습니다.
-
-
-#### 고유명사의 맞춤법 오류 찾기 및 수정하기
+#### 고유명사의 철자 오류 탐지
 
 
 
-주소, 노래 이름 또는 아티스트와 같은 고유명사가 포함된 열을 필터링하려면 먼저 철자를 다시 확인하여 데이터를 올바르게 필터링해야 합니다.
+고유명사의 철자 오류를 탐지하고, 데이터베이스에서 정확한 정보를 검색하는 것은 데이터 처리 작업에서 중요한 단계입니다.   
 
+이를 위해 벡터 저장소를 생성하고 사용자 정의 리트리버 도구를 만들어보겠습니다.   
 
+   
 
-데이터베이스에 존재하는 모든 고유 고유명사를 사용하여 벡터 저장소를 생성하면 됩니다. 그런 다음 사용자가 질문에 고유 명사를 포함할 때마다 상담원이 해당 벡터 저장소를 쿼리하여 해당 단어의 올바른 철자를 찾도록 할 수 있습니다. 이러한 방식으로 에이전트는 대상 쿼리를 작성하기 전에 사용자가 어떤 엔티티를 참조하는지 이해할 수 있습니다.
+**고유명사 목록 생성**   
 
+   
 
-
-메타데이터 없이 고유명사를 임베드한 다음 철자가 틀린 사용자 질문과 가장 유사한 것을 쿼리하는 방식으로 몇 가지 샷과 유사한 접근 방식을 따라 해 보겠습니다.
-
-
-
-먼저 원하는 각 엔티티에 대한 고유 값이 필요하며, 이를 위해 결과를 요소 목록으로 파싱하는 함수를 정의합니다:
+데이터베이스에서 고유명사를 추출하여 목록을 생성합니다. 이 과정에서는 데이터베이스 쿼리 결과를 파이썬 리스트로 변환하고, 불필요한 숫자와 공백을 제거한 후 중복을 없애는 작업을 합니다.
 
 
 
 ```python
-print(db.table_info)
+import ast
+import re
+
+
+def query_as_list(db, query):
+    # 쿼리 실행
+    res = db.run(query)
+    # 결과를 파이썬 데이터 구조로 변환하고, 빈 값이 아닌 요소만 선택
+    res = [el for sub in ast.literal_eval(res) for el in sub if el]
+    # 문자열에서 숫자를 제거하고 앞뒤 공백을 제거
+    res = [re.sub(r"\b\d+\b", "", string).strip() for string in res]
+    # 중복 제거
+    return list(set(res))
+
+# 쿼리 실행
+artists = query_as_list(db, "SELECT Name FROM Artist")
+albums = query_as_list(db, "SELECT Title FROM Album")
+albums[:5]
 ```
 
 <pre>
+['Are You Experienced?',
+ 'Get Born',
+ 'O Samba Poconé',
+ 'A Copland Celebration, Vol. I',
+ 'Great Opera Choruses']
+</pre>
+**사용자 정의 리트리버 도구 및 에이전트 생성**   
 
-CREATE TABLE albums (
+   
+
+고유명사 목록을 바탕으로 벡터 저장소를 생성하고, 이를 사용하여 고유명사의 정확한 철자를 찾는 리트리버 도구를 만듭니다. 그 후, 이 도구를 활용하는 SQL 쿼리 에이전트를 생성합니다.   
+
+   
+
+먼저 `table_info`로 고유명사가 될 목록을 살펴봅니다.   
+
+
+
+```python
+context = db.get_context()
+print(list(context))
+print(context["table_info"])
+```
+
+<pre>
+['table_info', 'table_names']
+
+CREATE TABLE "Album" (
 	"AlbumId" INTEGER NOT NULL, 
 	"Title" NVARCHAR(160) NOT NULL, 
 	"ArtistId" INTEGER NOT NULL, 
 	PRIMARY KEY ("AlbumId"), 
-	FOREIGN KEY("ArtistId") REFERENCES artists ("ArtistId")
+	FOREIGN KEY("ArtistId") REFERENCES "Artist" ("ArtistId")
 )
 
 /*
-3 rows from albums table:
+3 rows from Album table:
 AlbumId	Title	ArtistId
 1	For Those About To Rock We Salute You	1
 2	Balls to the Wall	2
@@ -670,14 +751,14 @@ AlbumId	Title	ArtistId
 */
 
 
-CREATE TABLE artists (
+CREATE TABLE "Artist" (
 	"ArtistId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(120), 
 	PRIMARY KEY ("ArtistId")
 )
 
 /*
-3 rows from artists table:
+3 rows from Artist table:
 ArtistId	Name
 1	AC/DC
 2	Accept
@@ -685,7 +766,7 @@ ArtistId	Name
 */
 
 
-CREATE TABLE customers (
+CREATE TABLE "Customer" (
 	"CustomerId" INTEGER NOT NULL, 
 	"FirstName" NVARCHAR(40) NOT NULL, 
 	"LastName" NVARCHAR(20) NOT NULL, 
@@ -700,11 +781,11 @@ CREATE TABLE customers (
 	"Email" NVARCHAR(60) NOT NULL, 
 	"SupportRepId" INTEGER, 
 	PRIMARY KEY ("CustomerId"), 
-	FOREIGN KEY("SupportRepId") REFERENCES employees ("EmployeeId")
+	FOREIGN KEY("SupportRepId") REFERENCES "Employee" ("EmployeeId")
 )
 
 /*
-3 rows from customers table:
+3 rows from Customer table:
 CustomerId	FirstName	LastName	Company	Address	City	State	Country	PostalCode	Phone	Fax	Email	SupportRepId
 1	Luís	Gonçalves	Embraer - Empresa Brasileira de Aeronáutica S.A.	Av. Brigadeiro Faria Lima, 2170	São José dos Campos	SP	Brazil	12227-000	+55 (12) 3923-5555	+55 (12) 3923-5566	luisg@embraer.com.br	3
 2	Leonie	Köhler	None	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	+49 0711 2842222	None	leonekohler@surfeu.de	5
@@ -712,7 +793,7 @@ CustomerId	FirstName	LastName	Company	Address	City	State	Country	PostalCode	Phon
 */
 
 
-CREATE TABLE employees (
+CREATE TABLE "Employee" (
 	"EmployeeId" INTEGER NOT NULL, 
 	"LastName" NVARCHAR(20) NOT NULL, 
 	"FirstName" NVARCHAR(20) NOT NULL, 
@@ -729,11 +810,11 @@ CREATE TABLE employees (
 	"Fax" NVARCHAR(24), 
 	"Email" NVARCHAR(60), 
 	PRIMARY KEY ("EmployeeId"), 
-	FOREIGN KEY("ReportsTo") REFERENCES employees ("EmployeeId")
+	FOREIGN KEY("ReportsTo") REFERENCES "Employee" ("EmployeeId")
 )
 
 /*
-3 rows from employees table:
+3 rows from Employee table:
 EmployeeId	LastName	FirstName	Title	ReportsTo	BirthDate	HireDate	Address	City	State	Country	PostalCode	Phone	Fax	Email
 1	Adams	Andrew	General Manager	None	1962-02-18 00:00:00	2002-08-14 00:00:00	11120 Jasper Ave NW	Edmonton	AB	Canada	T5K 2N1	+1 (780) 428-9482	+1 (780) 428-3457	andrew@chinookcorp.com
 2	Edwards	Nancy	Sales Manager	1	1958-12-08 00:00:00	2002-05-01 00:00:00	825 8 Ave SW	Calgary	AB	Canada	T2P 2T3	+1 (403) 262-3443	+1 (403) 262-3322	nancy@chinookcorp.com
@@ -741,14 +822,14 @@ EmployeeId	LastName	FirstName	Title	ReportsTo	BirthDate	HireDate	Address	City	St
 */
 
 
-CREATE TABLE genres (
+CREATE TABLE "Genre" (
 	"GenreId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(120), 
 	PRIMARY KEY ("GenreId")
 )
 
 /*
-3 rows from genres table:
+3 rows from Genre table:
 GenreId	Name
 1	Rock
 2	Jazz
@@ -756,27 +837,7 @@ GenreId	Name
 */
 
 
-CREATE TABLE invoice_items (
-	"InvoiceLineId" INTEGER NOT NULL, 
-	"InvoiceId" INTEGER NOT NULL, 
-	"TrackId" INTEGER NOT NULL, 
-	"UnitPrice" NUMERIC(10, 2) NOT NULL, 
-	"Quantity" INTEGER NOT NULL, 
-	PRIMARY KEY ("InvoiceLineId"), 
-	FOREIGN KEY("TrackId") REFERENCES tracks ("TrackId"), 
-	FOREIGN KEY("InvoiceId") REFERENCES invoices ("InvoiceId")
-)
-
-/*
-3 rows from invoice_items table:
-InvoiceLineId	InvoiceId	TrackId	UnitPrice	Quantity
-1	1	2	0.99	1
-2	1	4	0.99	1
-3	2	6	0.99	1
-*/
-
-
-CREATE TABLE invoices (
+CREATE TABLE "Invoice" (
 	"InvoiceId" INTEGER NOT NULL, 
 	"CustomerId" INTEGER NOT NULL, 
 	"InvoiceDate" DATETIME NOT NULL, 
@@ -787,26 +848,46 @@ CREATE TABLE invoices (
 	"BillingPostalCode" NVARCHAR(10), 
 	"Total" NUMERIC(10, 2) NOT NULL, 
 	PRIMARY KEY ("InvoiceId"), 
-	FOREIGN KEY("CustomerId") REFERENCES customers ("CustomerId")
+	FOREIGN KEY("CustomerId") REFERENCES "Customer" ("CustomerId")
 )
 
 /*
-3 rows from invoices table:
+3 rows from Invoice table:
 InvoiceId	CustomerId	InvoiceDate	BillingAddress	BillingCity	BillingState	BillingCountry	BillingPostalCode	Total
-1	2	2009-01-01 00:00:00	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	1.98
-2	4	2009-01-02 00:00:00	Ullevålsveien 14	Oslo	None	Norway	0171	3.96
-3	8	2009-01-03 00:00:00	Grétrystraat 63	Brussels	None	Belgium	1000	5.94
+1	2	2021-01-01 00:00:00	Theodor-Heuss-Straße 34	Stuttgart	None	Germany	70174	1.98
+2	4	2021-01-02 00:00:00	Ullevålsveien 14	Oslo	None	Norway	0171	3.96
+3	8	2021-01-03 00:00:00	Grétrystraat 63	Brussels	None	Belgium	1000	5.94
 */
 
 
-CREATE TABLE media_types (
+CREATE TABLE "InvoiceLine" (
+	"InvoiceLineId" INTEGER NOT NULL, 
+	"InvoiceId" INTEGER NOT NULL, 
+	"TrackId" INTEGER NOT NULL, 
+	"UnitPrice" NUMERIC(10, 2) NOT NULL, 
+	"Quantity" INTEGER NOT NULL, 
+	PRIMARY KEY ("InvoiceLineId"), 
+	FOREIGN KEY("TrackId") REFERENCES "Track" ("TrackId"), 
+	FOREIGN KEY("InvoiceId") REFERENCES "Invoice" ("InvoiceId")
+)
+
+/*
+3 rows from InvoiceLine table:
+InvoiceLineId	InvoiceId	TrackId	UnitPrice	Quantity
+1	1	2	0.99	1
+2	1	4	0.99	1
+3	2	6	0.99	1
+*/
+
+
+CREATE TABLE "MediaType" (
 	"MediaTypeId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(120), 
 	PRIMARY KEY ("MediaTypeId")
 )
 
 /*
-3 rows from media_types table:
+3 rows from MediaType table:
 MediaTypeId	Name
 1	MPEG audio file
 2	Protected AAC audio file
@@ -814,31 +895,14 @@ MediaTypeId	Name
 */
 
 
-CREATE TABLE playlist_track (
-	"PlaylistId" INTEGER NOT NULL, 
-	"TrackId" INTEGER NOT NULL, 
-	PRIMARY KEY ("PlaylistId", "TrackId"), 
-	FOREIGN KEY("TrackId") REFERENCES tracks ("TrackId"), 
-	FOREIGN KEY("PlaylistId") REFERENCES playlists ("PlaylistId")
-)
-
-/*
-3 rows from playlist_track table:
-PlaylistId	TrackId
-1	3402
-1	3389
-1	3390
-*/
-
-
-CREATE TABLE playlists (
+CREATE TABLE "Playlist" (
 	"PlaylistId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(120), 
 	PRIMARY KEY ("PlaylistId")
 )
 
 /*
-3 rows from playlists table:
+3 rows from Playlist table:
 PlaylistId	Name
 1	Music
 2	Movies
@@ -846,7 +910,24 @@ PlaylistId	Name
 */
 
 
-CREATE TABLE tracks (
+CREATE TABLE "PlaylistTrack" (
+	"PlaylistId" INTEGER NOT NULL, 
+	"TrackId" INTEGER NOT NULL, 
+	PRIMARY KEY ("PlaylistId", "TrackId"), 
+	FOREIGN KEY("TrackId") REFERENCES "Track" ("TrackId"), 
+	FOREIGN KEY("PlaylistId") REFERENCES "Playlist" ("PlaylistId")
+)
+
+/*
+3 rows from PlaylistTrack table:
+PlaylistId	TrackId
+1	3402
+1	3389
+1	3390
+*/
+
+
+CREATE TABLE "Track" (
 	"TrackId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(200) NOT NULL, 
 	"AlbumId" INTEGER, 
@@ -857,119 +938,108 @@ CREATE TABLE tracks (
 	"Bytes" INTEGER, 
 	"UnitPrice" NUMERIC(10, 2) NOT NULL, 
 	PRIMARY KEY ("TrackId"), 
-	FOREIGN KEY("MediaTypeId") REFERENCES media_types ("MediaTypeId"), 
-	FOREIGN KEY("GenreId") REFERENCES genres ("GenreId"), 
-	FOREIGN KEY("AlbumId") REFERENCES albums ("AlbumId")
+	FOREIGN KEY("MediaTypeId") REFERENCES "MediaType" ("MediaTypeId"), 
+	FOREIGN KEY("GenreId") REFERENCES "Genre" ("GenreId"), 
+	FOREIGN KEY("AlbumId") REFERENCES "Album" ("AlbumId")
 )
 
 /*
-3 rows from tracks table:
+3 rows from Track table:
 TrackId	Name	AlbumId	MediaTypeId	GenreId	Composer	Milliseconds	Bytes	UnitPrice
 1	For Those About To Rock (We Salute You)	1	1	1	Angus Young, Malcolm Young, Brian Johnson	343719	11170334	0.99
-2	Balls to the Wall	2	2	1	None	342562	5510424	0.99
+2	Balls to the Wall	2	2	1	U. Dirkschneider, W. Hoffmann, H. Frank, P. Baltes, S. Kaufmann, G. Hoffmann	342562	5510424	0.99
 3	Fast As a Shark	3	2	1	F. Baltes, S. Kaufman, U. Dirkscneider & W. Hoffman	230619	3990994	0.99
 */
 </pre>
 
 ```python
-import ast
-import re
-
-
-def run_query_save_results(db, query):
-    res = db.run(query)
-    res = [el for sub in ast.literal_eval(res) for el in sub if el]
-    res = [re.sub(r"\b\d+\b", "", string).strip() for string in res]
-    return res
-
-
-artists = run_query_save_results(db, "SELECT name FROM artists")
-albums = run_query_save_results(db, "SELECT title FROM albums")
-```
-
-이제 사용자 지정 **리트리버 도구**와 최종 에이전트 생성을 진행할 수 있습니다:
-
-
-
-```python
 from langchain.agents.agent_toolkits import create_retriever_tool
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
 
-texts = artists + albums
-
-embeddings = OpenAIEmbeddings()
-vector_db = FAISS.from_texts(texts, embeddings)
-retriever = vector_db.as_retriever()
-
+# 고유명사 목록을 벡터로 변환하여 저장
+vector_db = FAISS.from_texts(artists + albums, OpenAIEmbeddings())
+# 리트리버 생성
+retriever = vector_db.as_retriever(search_kwargs={"k": 5})
+# 리트리버 도구 설명
+description = """Use to look up values to filter on. Input is an approximate spelling of the proper noun, output is \
+valid proper nouns. Use the noun most similar to the search."""
+# 리트리버 도구 생성
 retriever_tool = create_retriever_tool(
     retriever,
-    name="name_search",
-    description="이름, 성 주소 등 데이터가 실제로 어떻게 쓰여졌는지 알아내는 데 사용합니다.",
+    name="search_proper_nouns",
+    description=description,
 )
-
-custom_tool_list = [retriever_tool]
 ```
 
 
 ```python
-from langchain.agents import AgentType, create_sql_agent
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
-from langchain.chat_models import ChatOpenAI
-from langchain.utilities import SQLDatabase
+# 에이전트 시스템 설명
+system = """You are an agent designed to interact with a SQL database.
+Given an input question, create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer.
+Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most {top_k} results.
+You can order the results by a relevant column to return the most interesting examples in the database.
+Never query for all the columns from a specific table, only ask for the relevant columns given the question.
+You have access to tools for interacting with the database.
+Only use the given tools. Only use the information returned by the tools to construct your final answer.
+You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
 
-# db = SQLDatabase.from_uri("sqlite:///Chinook.db")
-llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
-toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
 
-custom_suffix = """
-사용자가 고유명사를 기준으로 필터링해 달라고 요청하는 경우, 먼저 name_search 도구를 사용하여 철자를 확인해야 합니다.
-그렇지 않으면 데이터베이스의 테이블을 살펴보고 쿼리할 수 있는 항목을 확인할 수 있습니다.
-그런 다음 가장 관련성이 높은 테이블의 스키마를 쿼리해야 합니다.
-"""
+You have access to the following tables: {table_names}
 
+If the question does not seem related to the database, just return "I don't know" as the answer."""
+
+# 에이전트 및 프롬프트 생성
+prompt = ChatPromptTemplate.from_messages(
+    [("system", system), ("human", "{input}"), MessagesPlaceholder("agent_scratchpad")]
+)
 agent = create_sql_agent(
     llm=llm,
-    toolkit=toolkit,
+    db=db,
+    extra_tools=[retriever_tool],
+    prompt=prompt,
+    agent_type="openai-tools",
     verbose=True,
-    agent_type=AgentType.OPENAI_FUNCTIONS,
-    extra_tools=custom_tool_list,
-    suffix=custom_suffix,
 )
 ```
 
-Let's try it out:
-
-
 
 ```python
-agent.run("alice in chains는 몇 개의 앨범을 가지고 있나요?")
+agent.invoke({"input": "How many albums does alis in chain have?"})
 ```
 
 <pre>
 
 
-[1m> Entering new AgentExecutor chain...[0m
+[1m> Entering new SQL Agent Executor chain...[0m
 [32;1m[1;3m
-Invoking: `sql_db_list_tables` with ``
+Invoking: `search_proper_nouns` with `{'query': 'alis in chain'}`
 
 
-[0m[38;5;200m[1;3malbums, artists, customers, employees, genres, invoice_items, invoices, media_types, playlist_track, playlists, tracks[0m[32;1m[1;3m
-Invoking: `sql_db_schema` with `albums, artists`
+[0m[36;1m[1;3mAlice In Chains
+
+Aisha Duo
+
+Xis
+
+Da Lama Ao Caos
+
+A-Sides[0m[32;1m[1;3m
+Invoking: `sql_db_schema` with `{'table_names': 'Artist, Album'}`
 
 
 [0m[33;1m[1;3m
-CREATE TABLE albums (
+CREATE TABLE "Album" (
 	"AlbumId" INTEGER NOT NULL, 
 	"Title" NVARCHAR(160) NOT NULL, 
 	"ArtistId" INTEGER NOT NULL, 
 	PRIMARY KEY ("AlbumId"), 
-	FOREIGN KEY("ArtistId") REFERENCES artists ("ArtistId")
+	FOREIGN KEY("ArtistId") REFERENCES "Artist" ("ArtistId")
 )
 
 /*
-3 rows from albums table:
+3 rows from Album table:
 AlbumId	Title	ArtistId
 1	For Those About To Rock We Salute You	1
 2	Balls to the Wall	2
@@ -977,32 +1047,59 @@ AlbumId	Title	ArtistId
 */
 
 
-CREATE TABLE artists (
+CREATE TABLE "Artist" (
 	"ArtistId" INTEGER NOT NULL, 
 	"Name" NVARCHAR(120), 
 	PRIMARY KEY ("ArtistId")
 )
 
 /*
-3 rows from artists table:
+3 rows from Artist table:
 ArtistId	Name
 1	AC/DC
 2	Accept
 3	Aerosmith
 */[0m[32;1m[1;3m
-Invoking: `sql_db_query_checker` with `SELECT COUNT(*) FROM albums WHERE ArtistId = (SELECT ArtistId FROM artists WHERE Name = 'Alice In Chains')`
+Invoking: `sql_db_query` with `{'query': "SELECT COUNT(*) as AlbumCount FROM Album WHERE ArtistId = (SELECT ArtistId FROM Artist WHERE Name = 'Alice In Chains')"}`
 
 
-[0m[36;1m[1;3mSELECT COUNT(*) FROM albums WHERE ArtistId = (SELECT ArtistId FROM artists WHERE Name = 'Alice In Chains')[0m[32;1m[1;3m
-Invoking: `sql_db_query` with `SELECT COUNT(*) FROM albums WHERE ArtistId = (SELECT ArtistId FROM artists WHERE Name = 'Alice In Chains')`
-
-
-[0m[36;1m[1;3m[(1,)][0m[32;1m[1;3mAlice In Chains는 1개의 앨범을 가지고 있습니다.[0m
+[0m[36;1m[1;3m[(1,)][0m[32;1m[1;3mAlice In Chains has 1 album in the database.[0m
 
 [1m> Finished chain.[0m
 </pre>
 <pre>
-'Alice In Chains는 1개의 앨범을 가지고 있습니다.'
+{'input': 'How many albums does alis in chain have?',
+ 'output': 'Alice In Chains has 1 album in the database.'}
 </pre>
-보시다시피 에이전트는 이 특정 아티스트에 대한 데이터베이스를 올바르게 쿼리하는 방법을 확인하기 위해 `name_search` 도구를 사용했습니다.
+
+
+위의 코드를 통해, 사용자가 고유명사의 철자를 정확히 입력하지 않았을 때도 정확한 고유명사를 찾아내고, 이를 바탕으로 SQL 쿼리를 구성하여 데이터베이스에서 정확한 정보를 검색할 수 있습니다. 이 과정을 통해 데이터 처리의 정확성과 효율성을 높일 수 있습니다.   
+
+   
+
+리트리버 도구의 생성과 사용, 그리고 에이전트의 설정에 이르기까지, 모든 단계는 사용자의 요구사항에 맞추어 조정될 수 있으며, 데이터베이스와의 상호작용을 자동화하여 복잡한 쿼리 작업을 간단하게 처리할 수 있도록 돕습니다.   
+
+
+
+## 활용 사례
+
+
+
+LangChain을 활용한 SQL 구문 생성 모델은 다음과 같은 분야에서 활용될 수 있습니다.
+
+
+
+- **질의 응답 시스템**: 사용자가 자연어로 질문을 하면, 시스템이 이를 SQL 구문으로 변환하여 데이터베이스에서 정보를 검색하고 결과를 제공합니다.
+
+- **데이터 분석**: 비전문가도 자연어로 데이터 분석 질의를 할 수 있게 하여, 데이터 분석의 접근성을 높입니다.
+
+- **데이터베이스 관리**: 데이터베이스 관리자가 SQL 구문을 직접 작성하지 않고도, 자연어로 데이터베이스 관리 작업을 수행할 수 있습니다.
+
+
+
+## 참조
+
+
+
+- [LangChain SQL](https://python.langchain.com/docs/use_cases/sql/quickstart)
 
