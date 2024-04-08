@@ -133,9 +133,12 @@ To disable this warning, you can either:
 [33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
 [0m[33mWARNING: Ignoring invalid distribution ~angchain-community (/Users/ghingtae/anaconda3/lib/python3.11/site-packages)[0m[33m
 [0m
-</pre>
-mlx 사용이 가능한 gemma-7b-it 모델을 가져옵니다.
+</pre>   
 
+
+    
+mlx 사용이 가능한 gemma-7b-it 모델을 가져옵니다.    
+   
 
 
 ```python
@@ -148,14 +151,17 @@ model, tokenizer = load(model_id)
 
 <pre>
 Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]
-</pre>
+</pre>   
+
+
+    
 ## 모델 사용
 
 
 Gemma는 특정 명령을 사용합니다.   
 
-특정 명령에 맞게 template를 설정합니다.
-
+특정 명령에 맞게 template를 설정합니다.   
+   
 
 
 ```python
@@ -174,8 +180,10 @@ def apply_chat_template(messages:List, add_generation:bool=True):
     return result
 ```
 
-간단한 질문을 해봅니다.
 
+   
+간단한 질문을 해봅니다.   
+   
 
 
 ```python
@@ -184,8 +192,10 @@ messages = [
 ]
 ```
 
-응답을 잘한다는 것을 확인해 볼 수 있었습니다.   
 
+    
+응답을 잘한다는 것을 확인해 볼 수 있었습니다.      
+    
 
 
 ```python
@@ -221,9 +231,12 @@ Prompt: <start_of_turn>user
 ==========
 Prompt: 125.069 tokens-per-sec
 Generation: 19.403 tokens-per-sec
-</pre>
-## PDF 요약 모델
+</pre>    
 
+
+   
+## PDF 요약 모델    
+    
 
 
 ```python
@@ -243,8 +256,10 @@ def load_file(file_name, file_type):
     return loader.load_and_split(text_splitter)
 ```
 
-저장된 위치의 pdf 파일을 불러오고 지정한 `chunk_size`로 `documents`에 저장합니다.
 
+    
+저장된 위치의 pdf 파일을 불러오고 지정한 `chunk_size`로 `documents`에 저장합니다.    
+    
 
 
 ```python
@@ -269,10 +284,15 @@ documents
  Document(page_content='Gemma: Open Models Based on Gemini Research and Technology\nD. Ippolito, F. Tramèr, M. Nasr, C. Zhang,\nM. Jagielski, K. Lee, C. A. Choquette-Choo, and\nN. Carlini. Preventing verbatim memorization\nin language models gives a false sense of pri-\nvacy. arXiv preprint arXiv:2210.17546 , 2022.\nA. Q. Jiang, A. Sablayrolles, A. Mensch, C. Bam-\nford, D. S. Chaplot, D. de las Casas, F. Bressand,\nG.Lengyel,G.Lample,L.Saulnier,L.R.Lavaud,\nM.-A. Lachaux, P. Stock, T. L. Scao, T. Lavril,\nT. Wang, T. Lacroix, and W. E. Sayed. Mistral\n7b, 2023.\nM. Joshi, E. Choi, D. S. Weld, and L. Zettle-\nmoyer. Triviaqa: A large scale distantly su-\npervised challenge dataset for reading compre-\nhension. CoRR, abs/1705.03551, 2017. URL\nhttp://arxiv.org/abs/1705.03551 .\nK. Kavukcuoglu, P. Kohli, L. Ibrahim, D. Bloxwich,\nandS.Brown. Howourprincipleshelpeddefine\nalphafold’s release, 2022.\nT. Kudo and J. Richardson. SentencePiece: A\nsimple and language independent subword to-\nkenizeranddetokenizerforneuraltextprocess-\ning. InE.BlancoandW.Lu,editors, Proceedings\nof the 2018 Conference on Empirical Methods in\nNatural Language Processing: System Demon-\nstrations , pages 66–71, Brussels, Belgium, Nov.\n2018. Association for Computational Linguis-\ntics. doi: 10.18653/v1/D18-2012. URL\nhttps://aclanthology.org/D18-2012 .\nS. Kudugunta, I. Caswell, B. Zhang, X. Garcia,\nC. A. Choquette-Choo, K. Lee, D. Xin, A. Kusu-\npati, R. Stella, A. Bapna, et al. Madlad-400:\nA multilingual and document-level large au-\ndited dataset. arXiv preprint arXiv:2309.04662 ,\n2023.\nT. Kwiatkowski, J. Palomaki, O. Redfield,\nM. Collins, A. Parikh, C. Alberti, D. Epstein,\nI. Polosukhin, J. Devlin, K. Lee, K. Toutanova,\nL. Jones, M. Kelcey, M.-W. Chang, A. M. Dai,\nJ. Uszkoreit, Q. Le, and S. Petrov. Natural ques-\ntions: A benchmark for question answering\nresearch. Transactions of the Association for\nComputational Linguistics , 7:452–466, 2019.\ndoi: 10.1162/tacl_a_00276. URL https://\naclanthology.org/Q19-1026 .Y. LeCun, Y. Bengio, and G. Hinton. Deep learn-\ning. nature, 521(7553):436–444, 2015.\nT. Mikolov, K. Chen, G. Corrado, and J. Dean. Ef-\nficient estimation of word representations in\nvector space. In Y. Bengio and Y. LeCun, edi-\ntors, 1st International Conference on Learning\nRepresentations, ICLR 2013, Scottsdale, Arizona,\nUSA, May 2-4, 2013, Workshop Track Proceed-\nings, 2013. URL http://arxiv.org/abs/\n1301.3781 .\nM. Nasr, N. Carlini, J. Hayase, M. Jagielski, A. F.\nCooper, D. Ippolito, C. A. Choquette-Choo,\nE. Wallace, F. Tramèr, and K. Lee. Scal-\nable extraction of training data from (pro-\nduction) language models. arXiv preprint\narXiv:2311.17035 , 2023.\nL. Ouyang, J. Wu, X. Jiang, D. Almeida, C. Wain-\nwright, P. Mishkin, C. Zhang, S. Agarwal,\nK. Slama, A. Ray, et al. Training language mod-\nels to follow instructions with human feedback.\nAdvances in Neural Information Processing Sys-\ntems, 35, 2022.\nL. Pacchiardi, A. J. Chan, S. Mindermann,\nI. Moscovitz, A. Y. Pan, Y. Gal, O. Evans, and\nJ. Brauner. How to catch an ai liar: Lie de-\ntection in black-box llms by asking unrelated\nquestions, 2023.\nD. Paperno, G. Kruszewski, A. Lazaridou, Q. N.\nPham, R. Bernardi, S. Pezzelle, M. Baroni,\nG. Boleda, and R. Fernández. The LAMBADA\ndataset: Word prediction requiring a broad\ndiscourse context. CoRR, abs/1606.06031,\n2016. URL http://arxiv.org/abs/1606.\n06031.\nC. Raffel, N. Shazeer, A. Roberts, K. Lee,\nS. Narang, M. Matena, Y. Zhou, W. Li, and P. J.\nLiu. Exploring the limits of transfer learning\nwith a unified text-to-text transformer. CoRR,\nabs/1910.10683, 2019. URL http://arxiv.\norg/abs/1910.10683 .\nA. Roberts, H. W. Chung, A. Levskaya, G. Mishra,\nJ. Bradbury, D. Andor, S. Narang, B. Lester,\nC. Gaffney, A. Mohiuddin, C. Hawthorne,\nA. Lewkowycz, A. Salcianu, M. van Zee,\nJ. Austin, S. Goodman, L. B. Soares, H. Hu,\n14', metadata={'source': './storage/Gemma-report.pdf', 'page': 13}),
  Document(page_content='Gemma: Open Models Based on Gemini Research and Technology\nS. Tsvyashchenko, A. Chowdhery, J. Bast-\nings, J. Bulian, X. Garcia, J. Ni, A. Chen,\nK. Kenealy, J. H. Clark, S. Lee, D. Garrette,\nJ. Lee-Thorp, C. Raffel, N. Shazeer, M. Rit-\nter, M. Bosma, A. Passos, J. Maitin-Shepard,\nN. Fiedel, M. Omernick, B. Saeta, R. Sepassi,\nA. Spiridonov, J. Newlan, and A. Gesmundo.\nScaling up models and data with t5xand\nseqio, 2022.\nA. Roberts, H. W. Chung, G. Mishra, A. Levskaya,\nJ. Bradbury, D. Andor, S. Narang, B. Lester,\nC. Gaffney, A. Mohiuddin, et al. Scaling up\nmodels and data with t5x and seqio. Jour-\nnal of Machine Learning Research , 24(377):1–8,\n2023.\nK. Sakaguchi, R. L. Bras, C. Bhagavatula, and\nY. Choi. WINOGRANDE: an adversarial\nwinograd schema challenge at scale. CoRR,\nabs/1907.10641, 2019. URL http://arxiv.\norg/abs/1907.10641 .\nM. Sap, H. Rashkin, D. Chen, R. L. Bras,\nand Y. Choi. Socialiqa: Commonsense\nreasoning about social interactions. CoRR,\nabs/1904.09728, 2019. URL http://arxiv.\norg/abs/1904.09728 .\nN.Shazeer. Fasttransformerdecoding: Onewrite-\nhead is all you need. CoRR, abs/1911.02150,\n2019. URL http://arxiv.org/abs/1911.\n02150.\nN. Shazeer. GLU variants improve transformer.\nCoRR, abs/2002.05202, 2020. URL https:\n//arxiv.org/abs/2002.05202 .\nJ. M. V. Skalse, N. H. R. Howe, D. Krasheninnikov,\nand D. Krueger. Defining and characterizing\nreward gaming. In NeurIPS , 2022.\nJ. Su, Y. Lu, S. Pan, B. Wen, and Y. Liu. Roformer:\nEnhanced transformer with rotary position em-\nbedding. CoRR, abs/2104.09864, 2021. URL\nhttps://arxiv.org/abs/2104.09864 .\nI. Sutskever, O. Vinyals, and Q. V. Le. Sequence to\nsequence learning with neural networks. CoRR,\nabs/1409.3215, 2014. URL http://arxiv.\norg/abs/1409.3215 .M. Suzgun, N. Scales, N. Schärli, S. Gehrmann,\nY. Tay, H. W. Chung, A. Chowdhery, Q. V. Le,\nE. H. Chi, D. Zhou, and J. Wei. Challenging\nbig-bench tasks and whether chain-of-thought\ncan solve them, 2022.\nA. Talmor, J. Herzig, N. Lourie, and J. Be-\nrant. Commonsenseqa: A question answering\nchallenge targeting commonsense knowledge,\n2019.\nH. Touvron, T. Lavril, G. Izacard, X. Martinet, M.-\nA. Lachaux, T. Lacroix, B. Rozière, N. Goyal,\nE. Hambro, F. Azhar, A. Rodriguez, A. Joulin,\nE. Grave, and G. Lample. Llama: Open and\nefficient foundation language models, 2023a.\nH. Touvron, L. Martin, K. Stone, P. Albert,\nA. Almahairi, Y. Babaei, N. Bashlykov, S. Batra,\nP. Bhargava, S. Bhosale, D. Bikel, L. Blecher,\nC. C. Ferrer, M. Chen, G. Cucurull, D. Es-\niobu, J. Fernandes, J. Fu, W. Fu, B. Fuller,\nC. Gao, V. Goswami, N. Goyal, A. Hartshorn,\nS. Hosseini, R. Hou, H. Inan, M. Kardas,\nV. Kerkez, M. Khabsa, I. Kloumann, A. Korenev,\nP. S. Koura, M.-A. Lachaux, T. Lavril, J. Lee,\nD. Liskovich, Y. Lu, Y. Mao, X. Martinet, T. Mi-\nhaylov,P.Mishra,I.Molybog,Y.Nie,A.Poulton,\nJ. Reizenstein, R. Rungta, K. Saladi, A. Schel-\nten, R. Silva, E. M. Smith, R. Subramanian,\nX. E. Tan, B. Tang, R. Taylor, A. Williams, J. X.\nKuan, P. Xu, Z. Yan, I. Zarov, Y. Zhang, A. Fan,\nM. Kambadur, S. Narang, A. Rodriguez, R. Sto-\njnic, S. Edunov, and T. Scialom. Llama 2: Open\nfoundation and fine-tuned chat models, 2023b.\nA. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit,\nL. Jones, A. N. Gomez, L. Kaiser, and I. Polo-\nsukhin. Attention is all you need. CoRR,\nabs/1706.03762, 2017. URL http://arxiv.\norg/abs/1706.03762 .\nJ. Wei, X. Wang, D. Schuurmans, M. Bosma, E. H.\nChi, Q. Le, and D. Zhou. Chain of thought\nprompting elicits reasoning in large language\nmodels. CoRR, abs/2201.11903, 2022. URL\nhttps://arxiv.org/abs/2201.11903 .\nL. Weidinger, J. Mellor, M. Rauh, C. Griffin,\nJ. Uesato, P. Huang, M. Cheng, M. Glaese,\nB. Balle, A. Kasirzadeh, Z. Kenton, S. Brown,\nW. Hawkins, T. Stepleton, C. Biles, A. Birhane,\n15', metadata={'source': './storage/Gemma-report.pdf', 'page': 14}),
  Document(page_content='Gemma: Open Models Based on Gemini Research and Technology\nJ. Haas, L. Rimell, L. A. Hendricks, W. Isaac,\nS. Legassick, G. Irving, and I. Gabriel. Eth-\nical and social risks of harm from language\nmodels. CoRR, abs/2112.04359, 2021. URL\nhttps://arxiv.org/abs/2112.04359 .\nR. J. Williams. Simple statistical gradient-\nfollowing algorithms for connectionist rein-\nforcement learning. Machine learning , 8, 1992.\nXLA. Xla: Optimizing compiler for tensor-\nflow, 2019. URL https://www.tensorflow.\norg/xla .\nY. Xu, H. Lee, D. Chen, B. A. Hechtman, Y. Huang,\nR. Joshi, M. Krikun, D. Lepikhin, A. Ly, M. Mag-\ngioni, R. Pang, N. Shazeer, S. Wang, T. Wang,\nY. Wu, and Z. Chen. GSPMD: general and\nscalable parallelization for ML computation\ngraphs. CoRR, abs/2105.04663, 2021. URL\nhttps://arxiv.org/abs/2105.04663 .\nB. Zhang and R. Sennrich. Root mean square\nlayer normalization. CoRR, abs/1910.07467,\n2019. URL http://arxiv.org/abs/1910.\n07467.\nL. Zheng, W.-L. Chiang, Y. Sheng, S. Zhuang,\nZ. Wu, Y. Zhuang, Z. Lin, Z. Li, D. Li, E. P. Xing,\nH. Zhang, J. E. Gonzalez, and I. Stoica. Judg-\ning llm-as-a-judge with mt-bench and chatbot\narena, 2023.\nW. Zhong, R. Cui, Y. Guo, Y. Liang, S. Lu, Y. Wang,\nA. Saied, W. Chen, and N. Duan. Agieval: A\nhuman-centric benchmark for evaluating foun-\ndation models, 2023.\nA. Zou, L. Phan, S. Chen, J. Campbell, P. Guo,\nR. Ren, A. Pan, X. Yin, M. Mazeika, A.-K. Dom-\nbrowski, S. Goel, N. Li, M. J. Byun, Z. Wang,\nA. Mallen, S. Basart, S. Koyejo, D. Song,\nM. Fredrikson, J. Z. Kolter, and D. Hendrycks.\nRepresentation engineering: A top-down ap-\nproach to ai transparency, 2023.\n16', metadata={'source': './storage/Gemma-report.pdf', 'page': 15})]
-</pre>
-저장된 `documents`의 파일들을 `prompts` 설정에 따라 `summaries`에 저장합니다.   
+</pre>    
+
+
+
+    
+저장된 `documents`의 파일들을 `prompts` 설정에 따라 `summaries`에 저장합니다.    
 
 > "Gemma-report.pdf"는 11page 부터 참조기 때문에 10페이지까지 저장합니다.
+    
 
 
 
@@ -301,9 +321,12 @@ summaries_text = "\n".join(summaries)
 
 <pre>
 12529
-</pre>
-나눠서 요약한 것을 하나로 묶어서 다시 요약을 시킵니다.
+</pre>    
 
+
+
+나눠서 요약한 것을 하나로 묶어서 다시 요약을 시킵니다.    
+    
 
 
 ```python
@@ -344,7 +367,10 @@ pprint(final_summary)
  '**Overall, Gemma is a promising open-source model family that has the '
  'potential to improve the accessibility and safety of large language '
  'models.**')
-</pre>
+</pre>    
+
+
+
 ## 참조
 
 
