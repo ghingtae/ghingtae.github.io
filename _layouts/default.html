@@ -10,8 +10,6 @@
 -->
 <html lang="{{ site.locale | slice: 0,2 | default: "en" }}" class="no-js">
   <head>
-    {% include head.html %}
-    {% include head/custom.html %}
     <!-- Google Tag Manager -->
     <script>
       (function(w,d,s,l,i){
@@ -22,6 +20,8 @@
       })(window,document,'script','dataLayer','GTM-539N63TC');
     </script>
     <!-- End Google Tag Manager -->
+    {% include head.html %}
+    {% include head/custom.html %}
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
           c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -32,6 +32,13 @@
   </head>
 
   <body class="layout--{{ page.layout | default: layout.layout }}{% if page.classes or layout.classes %}{{ page.classes | default: layout.classes | join: ' ' | prepend: ' ' }}{% endif %}">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-539N63TC"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
     {% include_cached skip-links.html %}
     {% include_cached masthead.html %}
 
