@@ -99,6 +99,7 @@ analytics:
   provider               : "google-gtag"
   google:
     tracking_id          : "G-7ND8HRZKQV"
+    measurement_id       : "G-7ND8HRZKQV"
     anonymize_ip         : false
 
 
